@@ -54,10 +54,8 @@ public class MapsActivity2 extends FragmentActivity
 
     private GoogleApiClient googleApiClient;
 
-    private GoogleMap mMap;
+    public static GoogleMap mMap;
     private final int REQUEST_PERMISSION = 10;
-
-    //private LatLng present_place;
 
     private double present_location_latitude;
     private double present_location_longitude;
@@ -69,6 +67,7 @@ public class MapsActivity2 extends FragmentActivity
 
     private String destination_name;
 
+    public static MapTypeFragment mapTypeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +91,7 @@ public class MapsActivity2 extends FragmentActivity
 
         setLocation();
         setDestinationName();
+        makeFragment();
 
         Button back_button = (Button) findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
@@ -104,6 +104,23 @@ public class MapsActivity2 extends FragmentActivity
         mapFragment.getMapAsync(this);
     }
 
+    private void makeFragment(){
+        mapTypeFragment = new MapTypeFragment();
+        final android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.add(R.id.fragment_container, mapTypeFragment);
+        transaction.hide(mapTypeFragment);
+        transaction.commit();
+        Button map_type_button = (Button) findViewById(R.id.mapType);
+        map_type_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.show(mapTypeFragment);
+                transaction.commit();
+            }
+        });
+    }
+
     //現在位置及び目的地をセット
     private void setLocation() {
         present_location_latitude = 36.562173;
@@ -112,12 +129,6 @@ public class MapsActivity2 extends FragmentActivity
         destination_latitude = 36.5310338;
         destination_longitude = 136.6284361;
 
-        //present = new LatLng(present_location_latitude, present_location_longitude);
-        try {
-            //present = present_place.getLatLng();
-        }catch (NullPointerException e){
-
-        }
         destination = new LatLng(destination_latitude, destination_longitude);
     }
 
@@ -151,7 +162,7 @@ public class MapsActivity2 extends FragmentActivity
 
         CameraUpdate cUpdata = CameraUpdateFactory.newLatLngZoom(destination, 16);
         mMap.moveCamera(cUpdata);
-
+        //mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
         //showRoute(mMap, present, destination);
     }
@@ -210,6 +221,8 @@ public class MapsActivity2 extends FragmentActivity
             });
 
             //自転車経路表示ボタン
+            //自転車専用レーンがないので使用しない
+            /*
             Button bike_button = (Button) findViewById(R.id.bike_button);
             bike_button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -220,6 +233,7 @@ public class MapsActivity2 extends FragmentActivity
 
                 }
             });
+            */
 
             //自動車経路表示ボタン
             Button car_button = (Button) findViewById(R.id.car_button);
