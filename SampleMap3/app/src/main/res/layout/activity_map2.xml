@@ -2,15 +2,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <Button
-        android:text="戻る"
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"/>
-
+    android:layout_height="match_parent"
+    android:id="@+id/MapsActivity2">
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,48 +16,124 @@
         tools:context="example.android.samplemap1.MapsActivity"
         map:uiZoomControls="true"/>
 
-    <Button
-        android:id="@+id/mapType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:layout_marginLeft="500dp"
-        android:text="MapType" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="25dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:weightSum="20">
 
-        <Button
-            android:id="@+id/walk_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="700dp"
-            android:layout_weight="1"
-            android:text="徒歩" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"/>
 
-        <Button
-            android:id="@+id/car_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="700dp"
-            android:layout_weight="1"
-            android:text="車" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="2"
+            android:weightSum="20">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <Button
+                android:text="戻る"
+                android:textSize="10dp"
+                android:id="@+id/back_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="8"/>
+
+            <Button
+                android:id="@+id/mapType"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:text="MapType" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"></LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"></LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:orientation="horizontal"
+            android:weightSum="7">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/walk_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:text="徒歩" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/car_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:text="車" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <FrameLayout
-        android:layout_width="230dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="200dp"
-        android:layout_marginLeft="350dp"
-        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="500dp"
+        android:id="@+id/detail_fragment_container"
         android:orientation="vertical">
-
     </FrameLayout>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:id="@+id/fragment_container"
+        android:orientation="vertical">
+    </FrameLayout>
 
 </RelativeLayout>

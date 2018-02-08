@@ -1,6 +1,7 @@
 package example.android.samplemap3;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,8 +11,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,6 +46,7 @@ import com.google.maps.model.TravelMode;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -57,17 +66,40 @@ public class MapsActivity2 extends FragmentActivity
     public static GoogleMap mMap;
     private final int REQUEST_PERMISSION = 10;
 
+    //現在地及び目的地
     private double present_location_latitude;
     private double present_location_longitude;
     private double destination_latitude;
     private double destination_longitude;
 
+    //現在位置及び目的地
     private LatLng present;
     private LatLng destination;
 
     private String destination_name;
+    //所要時間を格納
+    public static String time;
+    //目的地までの距離を格納
+    public static String distance;
 
     public static MapTypeFragment mapTypeFragment;
+    public static DetailFragment detailFragment;
+    //map_typeを配置するFrameLayout
+    public static FrameLayout fragment_container;
+    //detail_fragmentを配置するFrameLayout
+    public static FrameLayout detail_fragment_container;
+    //map_typeへのタッチリスナー登録に使用
+    public static View map_type_view;
+    //detail_fragmentへのタッチリスナー登録に使用
+    public static View detail_fragment_view;
+    //map_typeのアニメーション
+    public static MapTypeAnimation mapTypeAnimation;
+    //経路の詳細を入れるリスト
+    public static ArrayList<String> routeList = new ArrayList<>();
+
+    //画面の大きさを格納
+    public static int maps_view_width;
+    public static int maps_view_height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +117,7 @@ public class MapsActivity2 extends FragmentActivity
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
         if (Build.VERSION.SDK_INT >= 23) {
             checkPermission();
         }
@@ -92,6 +125,17 @@ public class MapsActivity2 extends FragmentActivity
         setLocation();
         setDestinationName();
         makeFragment();
+
+
+        Log.d("MapsActivity2", "onCreate");
+        map_type_view = findViewById(R.id.fragment_container);
+        fragment_container = findViewById(R.id.fragment_container);
+        map_type_view.setOnTouchListener((View.OnTouchListener) mapTypeFragment);
+        detail_fragment_view = findViewById(R.id.detail_fragment_container);
+        detail_fragment_container = findViewById(R.id.detail_fragment_container);;
+        detail_fragment_view.setOnTouchListener((View.OnTouchListener) detailFragment);
+
+
 
         Button back_button = (Button) findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
@@ -101,30 +145,39 @@ public class MapsActivity2 extends FragmentActivity
             }
         });
 
-        mapFragment.getMapAsync(this);
-    }
-
-    private void makeFragment(){
-        mapTypeFragment = new MapTypeFragment();
-        final android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_container, mapTypeFragment);
-        transaction.hide(mapTypeFragment);
-        transaction.commit();
-        Button map_type_button = (Button) findViewById(R.id.mapType);
+        final Button map_type_button = (Button) findViewById(R.id.mapType);
         map_type_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final android.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.show(mapTypeFragment);
-                transaction.commit();
+                mapTypeAnimation = new MapTypeAnimation(map_type_view, -maps_view_width, (maps_view_width/3)*2, 1000);
+                //mapTypeAnimation = new MapTypeAnimation(map_type_view, 1200, (maps_view_width/3)*2);
+                mapTypeAnimation.setAnimation();
             }
         });
+
+        mapFragment.getMapAsync(this);
     }
 
-    //現在位置及び目的地をセット
+    //mapTypeFragment及びdetailFragmentを生成
+    private void makeFragment(){
+        mapTypeFragment = new MapTypeFragment();
+        final android.app.FragmentTransaction mapTypeTransaction = getFragmentManager().beginTransaction();
+        mapTypeTransaction.replace(R.id.fragment_container, mapTypeFragment);
+        mapTypeTransaction.show(mapTypeFragment);
+        mapTypeTransaction.commit();
+
+
+        detailFragment = new DetailFragment();
+        final android.app.FragmentTransaction detailTransaction = getFragmentManager().beginTransaction();
+        detailTransaction.replace(R.id.detail_fragment_container, detailFragment);
+        detailTransaction.show(detailFragment);
+        detailTransaction.commit();
+    }
+
+    //目的地をセット
     private void setLocation() {
-        present_location_latitude = 36.562173;
-        present_location_longitude = 136.662819;
+        //present_location_latitude = 36.578268;
+        //present_location_longitude = 136.662819;
 
         destination_latitude = 36.5310338;
         destination_longitude = 136.6284361;
@@ -141,10 +194,6 @@ public class MapsActivity2 extends FragmentActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        final LatLng center = new LatLng(35.690579, 139.778770);
-        final LatLng tokyoTower = new LatLng(35.6584279, 139.7455992);
-        final LatLng skyTree = new LatLng(35.7098861, 139.8107656);
-
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED) {
@@ -153,18 +202,8 @@ public class MapsActivity2 extends FragmentActivity
         }
         mMap.setMyLocationEnabled(true);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 12.5f));
-
-        //LatLng KIT = new LatLng(36.5310338 , 136.6284361);
-
-        //mMap.addMarker(new MarkerOptions().position(KIT).title("KIT"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(KIT));
-
         CameraUpdate cUpdata = CameraUpdateFactory.newLatLngZoom(destination, 16);
         mMap.moveCamera(cUpdata);
-        //mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-
-        //showRoute(mMap, present, destination);
     }
 
     private void showRoute(final GoogleMap map, LatLng presentLatLng, LatLng destinationLatLng) {
@@ -175,23 +214,13 @@ public class MapsActivity2 extends FragmentActivity
 
             DateTime now = new DateTime();
 
-            //Log.d("Debug", "1");
-
             //徒歩経路リクエスト
             final DirectionsResult result_walk = DirectionsApi.newRequest(getGeoContext(bundle))
                     .mode(TravelMode.WALKING)
-                    //.mode(TravelMode.WALKING)
                     .origin(presentLatLng.latitude + "," + presentLatLng.longitude)
                     .destination(destinationLatLng.latitude + "," + destinationLatLng.longitude)
                     .departureTime(now)
-                    .await();
-            //自転車経路リクエスト
-            final DirectionsResult result_bike = DirectionsApi.newRequest(getGeoContext(bundle))
-                    .mode(TravelMode.BICYCLING)
-                    //.mode(TravelMode.WALKING)
-                    .origin(presentLatLng.latitude + "," + presentLatLng.longitude)
-                    .destination(destinationLatLng.latitude + "," + destinationLatLng.longitude)
-                    .departureTime(now)
+                    .language("ja")
                     .await();
             //自動車経路リクエスト
             final DirectionsResult result_car = DirectionsApi.newRequest(getGeoContext(bundle))
@@ -200,14 +229,18 @@ public class MapsActivity2 extends FragmentActivity
                     .origin(presentLatLng.latitude + "," + presentLatLng.longitude)
                     .destination(destinationLatLng.latitude + "," + destinationLatLng.longitude)
                     .departureTime(now)
+                    .language("ja")
                     .await();
 
-            //Log.d("Debug", "2");
+            Log.i("PickerTest", String.format( "place '%s'",
+                    present));
 
             //デフォルトで徒歩経路表示
             mMap.clear();
             addMarkers(result_walk, map);
             addPolyline(result_walk, map);
+            detailFragment.setTime_and_Distance(time + ", " + distance);
+            setRouteList(result_walk);
 
             //徒歩経路表示ボタン
             Button walk_button = (Button) findViewById(R.id.walk_button);
@@ -217,23 +250,10 @@ public class MapsActivity2 extends FragmentActivity
                     mMap.clear();
                     addMarkers(result_walk, map);
                     addPolyline(result_walk, map);
+                    detailFragment.setTime_and_Distance(time + ", " + distance);
+                    setRouteList(result_walk);
                 }
             });
-
-            //自転車経路表示ボタン
-            //自転車専用レーンがないので使用しない
-            /*
-            Button bike_button = (Button) findViewById(R.id.bike_button);
-            bike_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mMap.clear();
-                    addMarkers(result_bike, map);
-                    addPolyline(result_bike, map);
-
-                }
-            });
-            */
 
             //自動車経路表示ボタン
             Button car_button = (Button) findViewById(R.id.car_button);
@@ -243,18 +263,36 @@ public class MapsActivity2 extends FragmentActivity
                     mMap.clear();
                     addMarkers(result_car, map);
                     addPolyline(result_car, map);
+                    detailFragment.setTime_and_Distance(time + ", " + distance);
+                    setRouteList(result_car);
                 }
             });
 
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
+            Log.d("MapsActivity2", "NameNotFound");
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Log.d("MapsActivity2", "Interrupted");
         } catch (IOException e) {
             e.printStackTrace();
+            //位置情報が得られなかった場合, 目的地にマーカー設置のみ行う
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(destination_latitude,
+                            destination_longitude))
+                    .title(destination_name));
+            Log.d("MapsActivity2", "IOException");
         } catch (ApiException e) {
             e.printStackTrace();
+            Log.d("MapsActivity2", "ApiException");
+        } catch (NullPointerException e) {
+            Log.d("MapsActivity2", "Null" + e);
+            //位置情報が得られなかった場合, 目的地にマーカー設置のみ行う
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(destination_latitude,
+                            destination_longitude))
+                    .title(destination_name));
         }
     }
 
@@ -265,6 +303,7 @@ public class MapsActivity2 extends FragmentActivity
         return geoApiContext;
     }
 
+    //マーカーの設置
     private void addMarkers(DirectionsResult results, GoogleMap mMap) {
         try {
             mMap.addMarker(new MarkerOptions()
@@ -285,24 +324,44 @@ public class MapsActivity2 extends FragmentActivity
 
     }
 
+    //所要時間の取得
     private String getTime(DirectionsResult results) {
         int hour = (int) (results.routes[0].legs[0].duration.inSeconds / 3600);
         int minutes = (int) ((results.routes[0].legs[0].duration.inSeconds % (60 * 60)) / 60);
 
+
         if (hour != 0) {
+            time = "所要時間 :" + hour + "時間" + minutes + "分";
             return "所要時間 :" + hour + "時間" + minutes + "分";
         } else {
+            time = "所要時間 :" + minutes + "分";
             return "所要時間 :" + minutes + "分";
         }
     }
 
+    //目的地までの距離取得
     private String getDistance(DirectionsResult results) {
+        distance = " 距離 :" + results.routes[0].legs[0].distance;
         return " 距離 :" + results.routes[0].legs[0].distance;
     }
 
+    private void setRouteList(DirectionsResult results){
+        for(int i = 0; i < results.routes[0].legs[0].steps.length; i++) {
+            //各ステップの距離を格納
+            String step_distance = results.routes[0].legs[0].steps[i].distance.toString();
+            //経路の詳細を格納
+            String route_detail = results.routes[0].legs[0].steps[i].htmlInstructions
+                    .replaceAll("<(\"[^\"]*\"|'[^']*'|[^'\">])*>", "")
+                    .toString();
+
+            routeList.add(step_distance + "先 " + route_detail);
+        }
+        detailFragment.makeListView();
+    }
+
+    //地図上に経路の表示
     private void addPolyline(DirectionsResult results, GoogleMap mMap) {
         try {
-
             List<LatLng> Path = PolyUtil.decode(results.routes[0].overviewPolyline.getEncodedPath());
             mMap.addPolyline(new PolylineOptions().addAll(Path));
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -342,7 +401,6 @@ public class MapsActivity2 extends FragmentActivity
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION,},
                     REQUEST_PERMISSION);
-
         }
     }
 
@@ -357,7 +415,6 @@ public class MapsActivity2 extends FragmentActivity
             // 使用が許可された
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //locationActivity();
-
             } else {
                 // それでも拒否された時の対応
                 Toast toast = Toast.makeText(this,
@@ -406,23 +463,47 @@ public class MapsActivity2 extends FragmentActivity
                         //present = placeLikelihood.getPlace().getLatLng();
                         i = placeLikelihood;
                         present = i.getPlace().getLatLng();
-                        Log.i("aaa", String.format( "place '%s'",
-                                present));
                     }
+                    /*
+                    Log.i("PickerTest", String.format( "place '%s'",
+                            present));
+                    */
                 }
                 likelyPlaces.release();
+                //map, 現在地, 目的地を引数に指定
                 showRoute(mMap, present, destination);
             }
         });
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-
-    }
+    public void onConnectionSuspended(int i) {}
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
 
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus){
+        RelativeLayout activity_map2_layout = findViewById(R.id.MapsActivity2);
+        //画面サイズを取得
+        int layout_width = activity_map2_layout.getWidth();
+        int layout_height = activity_map2_layout.getHeight();
+
+
+        maps_view_width = layout_width;
+        maps_view_height = layout_height;
+
+        //map_typeの初期位置の変更
+
+        RelativeLayout.LayoutParams f_lp = (RelativeLayout.LayoutParams) MapsActivity2.fragment_container.getLayoutParams();
+        ViewGroup.MarginLayoutParams f_mlp = f_lp;
+        f_mlp.setMargins(-MapsActivity2.maps_view_width, f_mlp.topMargin, MapsActivity2.maps_view_width, f_mlp.bottomMargin);
+        MapsActivity2.fragment_container.setLayoutParams(f_mlp);
+
+        //map_type_view.layout(100,100,map_type_view.getRight()+100,map_type_view.getBottom()+100);
+        Log.d("MapsActivity2", "width=" + layout_width +
+                ", height=" + layout_height);
     }
+
 }

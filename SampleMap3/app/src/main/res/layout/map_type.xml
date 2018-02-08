@@ -4,34 +4,47 @@
     android:layout_height="match_parent">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/mapType_normal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Normal" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"></LinearLayout>
 
-                <Button
-                    android:id="@+id/mapType_satellite"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Satellite" />
+                    android:orientation="vertical"
+                    android:layout_weight="2">
 
-                <Button
-                    android:id="@+id/mapType_terrain"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Terrain" />
+                        <Button
+                            android:id="@+id/mapType_normal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Normal" />
+
+                        <Button
+                            android:id="@+id/mapType_satellite"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Satellite" />
+
+                        <Button
+                            android:id="@+id/mapType_terrain"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Terrain" />
+
+                        <Button
+                            android:id="@+id/back_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="×" />
+
+                </LinearLayout>
 
         </LinearLayout>
-
-        <Button
-            android:id="@+id/back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="×" />
 
 </LinearLayout>
