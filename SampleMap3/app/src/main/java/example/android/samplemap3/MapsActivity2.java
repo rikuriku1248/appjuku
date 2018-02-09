@@ -109,7 +109,6 @@ public class MapsActivity2 extends FragmentActivity
     public static int maps_view_width;
     public static int maps_view_height;
 
-    private GetLocation getLocation;
     private FusedLocationProviderApi fusedLocationProviderApi;
     private LocationRequest request;
 
