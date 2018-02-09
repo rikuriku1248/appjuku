@@ -94,6 +94,7 @@ public class MapsActivity2 extends FragmentActivity
     public static View detail_fragment_view;
     //map_typeのアニメーション
     public static MapTypeAnimation mapTypeAnimation;
+
     //経路の詳細を入れるリスト
     public static ArrayList<String> routeList = new ArrayList<>();
 
@@ -150,7 +151,6 @@ public class MapsActivity2 extends FragmentActivity
             @Override
             public void onClick(View view) {
                 mapTypeAnimation = new MapTypeAnimation(map_type_view, -maps_view_width, (maps_view_width/3)*2, 1000);
-                //mapTypeAnimation = new MapTypeAnimation(map_type_view, 1200, (maps_view_width/3)*2);
                 mapTypeAnimation.setAnimation();
             }
         });
@@ -495,11 +495,18 @@ public class MapsActivity2 extends FragmentActivity
         maps_view_height = layout_height;
 
         //map_typeの初期位置の変更
-
         RelativeLayout.LayoutParams f_lp = (RelativeLayout.LayoutParams) MapsActivity2.fragment_container.getLayoutParams();
         ViewGroup.MarginLayoutParams f_mlp = f_lp;
-        f_mlp.setMargins(-MapsActivity2.maps_view_width, f_mlp.topMargin, MapsActivity2.maps_view_width, f_mlp.bottomMargin);
+        f_mlp.setMargins(-maps_view_width, f_mlp.topMargin, maps_view_width, f_mlp.bottomMargin);
         MapsActivity2.fragment_container.setLayoutParams(f_mlp);
+
+        //detail_fragmentの初期位置変更
+
+        RelativeLayout.LayoutParams f_lp2 = (RelativeLayout.LayoutParams) MapsActivity2.detail_fragment_container.getLayoutParams();
+        ViewGroup.MarginLayoutParams f_mlp2 = f_lp2;
+        f_mlp2.setMargins(f_mlp2.leftMargin, maps_view_height - detailFragment.time_and_distance.getHeight(),
+                f_mlp2.rightMargin, -maps_view_height + detailFragment.time_and_distance.getHeight());
+        MapsActivity2.detail_fragment_container.setLayoutParams(f_mlp2);
 
         //map_type_view.layout(100,100,map_type_view.getRight()+100,map_type_view.getBottom()+100);
         Log.d("MapsActivity2", "width=" + layout_width +

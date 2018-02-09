@@ -4,49 +4,46 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 /**
- * Created by riku on 2018/02/05.
+ * Created by riku on 2018/02/09.
  */
 
-public class MapTypeAnimation implements Animator.AnimatorListener{
+public class DetailAnimation implements Animator.AnimatorListener{
 
     //アニメーションさせたいオブジェクトを格納
     private View view;
-    private int preX;
-    private int newX;
-    private FrameLayout fragment_container;
+    private int preY;
+    private int newY;
+    private FrameLayout detail_fragment_container;
     private int duration;
 
     //コンストラクタ
-    public MapTypeAnimation(View view, int preX, int newX, int duration){
+    public DetailAnimation(View view, int preY, int newY, int duration){
         this.view = view;
-        this.preX = preX;
-        this.newX = newX;
-        this.fragment_container = MapsActivity2.fragment_container;
+        this.preY = preY;
+        this.newY = newY;
+        this.detail_fragment_container = MapsActivity2.detail_fragment_container;
         this.duration = duration;
     }
 
     public void setAnimation(){
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, "translationX", preX, newX);
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, "translationY", preY, newY);
         objectAnimator.addListener(this);
         objectAnimator.setDuration(duration);
         objectAnimator.start();
-        Log.d("MapTypeAnimation", "setAnimation");
+        Log.d("DetailAnimation", "setAnimation");
     }
 
     @Override
     public void onAnimationStart(Animator animator) {
-        Log.d("MapTypeAnimation", "onAnimationStart");
 
     }
 
     @Override
     public void onAnimationEnd(Animator animator) {
-        Log.d("MapTypeAnimation", "onAnimationEnd");
+
     }
 
     @Override
