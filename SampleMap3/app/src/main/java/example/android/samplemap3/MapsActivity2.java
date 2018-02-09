@@ -4,6 +4,7 @@ import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,6 +26,10 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
@@ -58,7 +63,8 @@ import java.util.concurrent.TimeUnit;
 public class MapsActivity2 extends FragmentActivity
         implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener{
 
     SupportMapFragment mapFragment;
 
@@ -103,6 +109,10 @@ public class MapsActivity2 extends FragmentActivity
     public static int maps_view_width;
     public static int maps_view_height;
 
+    private GetLocation getLocation;
+    private FusedLocationProviderApi fusedLocationProviderApi;
+    private LocationRequest request;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +122,7 @@ public class MapsActivity2 extends FragmentActivity
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
+                .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -120,9 +131,13 @@ public class MapsActivity2 extends FragmentActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            checkPermission();
-        }
+        fusedLocationProviderApi = LocationServices.FusedLocationApi;
+        //位置情報のリクエスト情報を取得
+        request = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(1000)
+                .setFastestInterval(15)
+                .setNumUpdates(1);
 
         setLocation();
         setDestinationName();
@@ -306,13 +321,6 @@ public class MapsActivity2 extends FragmentActivity
         }
     }
 
-    private LatLng calcCameraPos(LatLng presentLatLng, LatLng destinationLatLng){
-        double cameraLat = (presentLatLng.latitude + destinationLatLng.latitude) / 2;
-        double cameraLng = (presentLatLng.longitude + destinationLatLng.longitude) / 2;
-        LatLng cameraPos = new LatLng(cameraLat, cameraLng);
-        return cameraPos;
-    }
-
     private GeoApiContext getGeoContext(Bundle bundle) {
         GeoApiContext geoApiContext = new GeoApiContext();
         geoApiContext.setQueryRateLimit(3).setApiKey(bundle.getString("com.google.android.geo.API_KEY"))
@@ -389,62 +397,33 @@ public class MapsActivity2 extends FragmentActivity
         }
     }
 
-    // 位置情報許可の確認
-    public void checkPermission() {
-        // 既に許可している場合
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
-        }
-        // 拒否していた場合
-        else {
-            requestLocationPermission();
-        }
-    }
 
-    // 許可を求める
-    private void requestLocationPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSION);
-
-        } else {
-            Toast toast = Toast.makeText(this,
-                    "許可がないとアプリが実行できません", Toast.LENGTH_SHORT);
-            toast.show();
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,},
-                    REQUEST_PERMISSION);
-        }
-    }
-
-    // 結果の受け取り
-    @Override
-    public void onRequestPermissionsResult(
-            int requestCode,
-            @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
-
-        if (requestCode == REQUEST_PERMISSION) {
-            // 使用が許可された
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //locationActivity();
-            } else {
-                // それでも拒否された時の対応
-                Toast toast = Toast.makeText(this,
-                        "これ以上なにもできません", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-    }
 
     @Override
     protected void onStart() {
         super.onStart();
-        googleApiClient.connect();
+        if(googleApiClient != null) {
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Google Playへの接続
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // 位置情報リクエストの解除、及び、Google Playからの切断
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            fusedLocationProviderApi.removeLocationUpdates(googleApiClient, (LocationListener) this);
+        }
+        googleApiClient.disconnect();
     }
 
     @Override
@@ -455,42 +434,15 @@ public class MapsActivity2 extends FragmentActivity
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+        // ACCESS_FINE_LOCATIONへのパーミッションを確認
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.
+                permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        com.google.android.gms.common.api.PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi
-                .getCurrentPlace(googleApiClient, null);
-        result.setResultCallback( new ResultCallback<PlaceLikelihoodBuffer>() {
-            @Override
-            public void onResult( PlaceLikelihoodBuffer likelyPlaces ) {
-                PlaceLikelihood i = null;
-                boolean flag = true;
-                for ( PlaceLikelihood placeLikelihood : likelyPlaces ) {
-                    Log.i("PickerTest", String.format( "Place '%s' has likelihood: %g place '%s'",
-                            placeLikelihood.getPlace().getName(),
-                            placeLikelihood.getLikelihood(),
-                            placeLikelihood.getPlace().getLatLng()));
 
-                    if(flag) {
-                        i = placeLikelihood;
-                        present = placeLikelihood.getPlace().getLatLng();
-                        flag = false;
-                    }
-                    if(placeLikelihood.getLikelihood() > i.getLikelihood()){
-                        //present = placeLikelihood.getPlace().getLatLng();
-                        i = placeLikelihood;
-                        present = i.getPlace().getLatLng();
-                    }
-                    /*
-                    Log.i("PickerTest", String.format( "place '%s'",
-                            present));
-                    */
-                }
-                likelyPlaces.release();
-                //map, 現在地, 目的地を引数に指定
-                showRoute(mMap, present, destination);
-            }
-        });
+        // 位置情報の監視を開始
+        fusedLocationProviderApi.requestLocationUpdates(googleApiClient, request, this);
     }
 
     @Override
@@ -527,4 +479,12 @@ public class MapsActivity2 extends FragmentActivity
                 ", height=" + layout_height);
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d("MapsActivity2", "Lat:"+location.getLatitude()
+                +", Lng:"+location.getLongitude());
+        //map, 現在地, 目的地を引数に指定
+        present = new LatLng(location.getLatitude(), location.getLongitude());
+        showRoute(mMap, present, destination);
+    }
 }
