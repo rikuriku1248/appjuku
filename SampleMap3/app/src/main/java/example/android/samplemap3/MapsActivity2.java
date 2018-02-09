@@ -34,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApi;
@@ -232,7 +233,7 @@ public class MapsActivity2 extends FragmentActivity
                     .language("ja")
                     .await();
 
-            Log.i("PickerTest", String.format( "place '%s'",
+            Log.i("MapsActivity2", String.format( "place '%s'",
                     present));
 
             //デフォルトで徒歩経路表示
@@ -241,6 +242,15 @@ public class MapsActivity2 extends FragmentActivity
             addPolyline(result_walk, map);
             detailFragment.setTime_and_Distance(time + ", " + distance);
             setRouteList(result_walk);
+
+            //カメラを経路全体が見える位置に移動
+            if(presentLatLng.longitude > destinationLatLng.longitude) {
+                LatLngBounds pre_des = new LatLngBounds(destinationLatLng, presentLatLng);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(pre_des, 0));
+            }else{
+                LatLngBounds pre_des = new LatLngBounds(presentLatLng, destinationLatLng);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(pre_des, 0));
+            }
 
             //徒歩経路表示ボタン
             Button walk_button = (Button) findViewById(R.id.walk_button);
@@ -294,6 +304,13 @@ public class MapsActivity2 extends FragmentActivity
                             destination_longitude))
                     .title(destination_name));
         }
+    }
+
+    private LatLng calcCameraPos(LatLng presentLatLng, LatLng destinationLatLng){
+        double cameraLat = (presentLatLng.latitude + destinationLatLng.latitude) / 2;
+        double cameraLng = (presentLatLng.longitude + destinationLatLng.longitude) / 2;
+        LatLng cameraPos = new LatLng(cameraLat, cameraLng);
+        return cameraPos;
     }
 
     private GeoApiContext getGeoContext(Bundle bundle) {
@@ -490,7 +507,6 @@ public class MapsActivity2 extends FragmentActivity
         int layout_width = activity_map2_layout.getWidth();
         int layout_height = activity_map2_layout.getHeight();
 
-
         maps_view_width = layout_width;
         maps_view_height = layout_height;
 
@@ -501,14 +517,12 @@ public class MapsActivity2 extends FragmentActivity
         MapsActivity2.fragment_container.setLayoutParams(f_mlp);
 
         //detail_fragmentの初期位置変更
-
         RelativeLayout.LayoutParams f_lp2 = (RelativeLayout.LayoutParams) MapsActivity2.detail_fragment_container.getLayoutParams();
         ViewGroup.MarginLayoutParams f_mlp2 = f_lp2;
         f_mlp2.setMargins(f_mlp2.leftMargin, maps_view_height - detailFragment.time_and_distance.getHeight(),
                 f_mlp2.rightMargin, -maps_view_height + detailFragment.time_and_distance.getHeight());
         MapsActivity2.detail_fragment_container.setLayoutParams(f_mlp2);
 
-        //map_type_view.layout(100,100,map_type_view.getRight()+100,map_type_view.getBottom()+100);
         Log.d("MapsActivity2", "width=" + layout_width +
                 ", height=" + layout_height);
     }
