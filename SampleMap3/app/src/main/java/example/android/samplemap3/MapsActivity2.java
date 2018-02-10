@@ -2,8 +2,11 @@ package example.android.samplemap3;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -41,6 +45,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApi;
 import com.google.maps.GeoApiContext;
@@ -112,6 +117,13 @@ public class MapsActivity2 extends FragmentActivity
     private FusedLocationProviderApi fusedLocationProviderApi;
     private LocationRequest request;
 
+    private static DirectionsResult result_walk;
+    private static DirectionsResult result_car;
+    //0:result_walk, 1:result_car
+    private static int result_mode = 0;
+    //各ステップのポリラインを格納
+    private static Polyline step_polyline;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,8 +146,6 @@ public class MapsActivity2 extends FragmentActivity
         //位置情報のリクエスト情報を取得
         request = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(1000)
-                .setFastestInterval(15)
                 .setNumUpdates(1);
 
         setLocation();
@@ -150,8 +160,6 @@ public class MapsActivity2 extends FragmentActivity
         detail_fragment_view = findViewById(R.id.detail_fragment_container);
         detail_fragment_container = findViewById(R.id.detail_fragment_container);;
         detail_fragment_view.setOnTouchListener((View.OnTouchListener) detailFragment);
-
-
 
         Button back_button = (Button) findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
@@ -194,8 +202,11 @@ public class MapsActivity2 extends FragmentActivity
         //present_location_latitude = 36.578268;
         //present_location_longitude = 136.662819;
 
-        destination_latitude = 36.5310338;
-        destination_longitude = 136.6284361;
+        //destination_latitude = 36.5310338;
+        //destination_longitude = 136.6284361;
+
+        destination_latitude = 36.709294;
+        destination_longitude = 136.695049;
 
         destination = new LatLng(destination_latitude, destination_longitude);
     }
@@ -221,7 +232,7 @@ public class MapsActivity2 extends FragmentActivity
         mMap.moveCamera(cUpdata);
     }
 
-    private void showRoute(final GoogleMap map, LatLng presentLatLng, LatLng destinationLatLng) {
+    private void showRoute(final GoogleMap map, final LatLng presentLatLng, final LatLng destinationLatLng) {
 
         try {
             ApplicationInfo appInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
@@ -230,7 +241,7 @@ public class MapsActivity2 extends FragmentActivity
             DateTime now = new DateTime();
 
             //徒歩経路リクエスト
-            final DirectionsResult result_walk = DirectionsApi.newRequest(getGeoContext(bundle))
+            result_walk = DirectionsApi.newRequest(getGeoContext(bundle))
                     .mode(TravelMode.WALKING)
                     .origin(presentLatLng.latitude + "," + presentLatLng.longitude)
                     .destination(destinationLatLng.latitude + "," + destinationLatLng.longitude)
@@ -238,7 +249,7 @@ public class MapsActivity2 extends FragmentActivity
                     .language("ja")
                     .await();
             //自動車経路リクエスト
-            final DirectionsResult result_car = DirectionsApi.newRequest(getGeoContext(bundle))
+            result_car = DirectionsApi.newRequest(getGeoContext(bundle))
                     .mode(TravelMode.DRIVING)
                     //.mode(TravelMode.WALKING)
                     .origin(presentLatLng.latitude + "," + presentLatLng.longitude)
@@ -247,8 +258,7 @@ public class MapsActivity2 extends FragmentActivity
                     .language("ja")
                     .await();
 
-            Log.i("MapsActivity2", String.format( "place '%s'",
-                    present));
+            Log.i("MapsActivity2", "walk:"+String.valueOf(result_walk.routes[0].legs[0].steps.length)+ ", car:"+String.valueOf(result_car.routes[0].legs[0].steps.length));
 
             //デフォルトで徒歩経路表示
             mMap.clear();
@@ -256,15 +266,11 @@ public class MapsActivity2 extends FragmentActivity
             addPolyline(result_walk, map);
             detailFragment.setTime_and_Distance(time + ", " + distance);
             setRouteList(result_walk);
-
-            //カメラを経路全体が見える位置に移動
-            if(presentLatLng.longitude > destinationLatLng.longitude) {
-                LatLngBounds pre_des = new LatLngBounds(destinationLatLng, presentLatLng);
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(pre_des, 0));
-            }else{
-                LatLngBounds pre_des = new LatLngBounds(presentLatLng, destinationLatLng);
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(pre_des, 0));
+            if(step_polyline != null) {
+                step_polyline.remove();
             }
+
+            moveCamera(presentLatLng, destinationLatLng, 100);
 
             //徒歩経路表示ボタン
             Button walk_button = (Button) findViewById(R.id.walk_button);
@@ -276,6 +282,11 @@ public class MapsActivity2 extends FragmentActivity
                     addPolyline(result_walk, map);
                     detailFragment.setTime_and_Distance(time + ", " + distance);
                     setRouteList(result_walk);
+                    result_mode = 0;
+                    moveCamera(presentLatLng, destinationLatLng, 100);
+                    if(step_polyline != null) {
+                        step_polyline.remove();
+                    }
                 }
             });
 
@@ -289,6 +300,11 @@ public class MapsActivity2 extends FragmentActivity
                     addPolyline(result_car, map);
                     detailFragment.setTime_and_Distance(time + ", " + distance);
                     setRouteList(result_car);
+                    result_mode = 1;
+                    moveCamera(presentLatLng, destinationLatLng, 100);
+                    if(step_polyline != null) {
+                        step_polyline.remove();
+                    }
                 }
             });
 
@@ -317,6 +333,61 @@ public class MapsActivity2 extends FragmentActivity
                     .position(new LatLng(destination_latitude,
                             destination_longitude))
                     .title(destination_name));
+        }
+    }
+
+    private static void moveCamera(LatLng presentLatLng, LatLng destinationLatLng, int i){
+        //カメラを経路全体が見える位置に移動
+        LatLngBounds pre_des;
+        if(presentLatLng.longitude >= destinationLatLng.longitude) {
+            if(presentLatLng.latitude >= destinationLatLng.latitude) {
+                pre_des = new LatLngBounds(destinationLatLng, presentLatLng);
+            }else{
+                LatLng lower_left = new LatLng(presentLatLng.latitude, destinationLatLng.longitude);
+                LatLng upper_right = new LatLng(destinationLatLng.latitude, presentLatLng.longitude);
+                pre_des = new LatLngBounds(lower_left, upper_right);
+            }
+        }else{
+            if(presentLatLng.latitude >= destinationLatLng.latitude) {
+                LatLng lower_left = new LatLng(destinationLatLng.latitude, presentLatLng.longitude);
+                LatLng upper_right = new LatLng(presentLatLng.latitude, destinationLatLng.longitude);
+                pre_des = new LatLngBounds(lower_left, upper_right);
+            }else{
+                pre_des = new LatLngBounds(presentLatLng, destinationLatLng);
+            }
+        }
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(pre_des, 100));
+        //presentLatLng, destinationLatLngが収まる位置に1秒かけて移動
+        if(pre_des != null) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(pre_des, i), 1000, null);
+        }
+    }
+
+    //クリックされた経路ステップにカメラを移動
+    public static void focusRouteStep(int num){
+        if(step_polyline != null) {
+            step_polyline.remove();
+        }
+        if(result_mode == 0) {//route_displayに徒歩経路表示中
+            LatLng start_walk = new LatLng(result_walk.routes[0].legs[0].steps[num].startLocation.lat, result_walk.routes[0].legs[0].steps[num].startLocation.lng);
+            LatLng end_walk = new LatLng(result_walk.routes[0].legs[0].steps[num].endLocation.lat, result_walk.routes[0].legs[0].steps[num].endLocation.lng);
+            moveCamera(start_walk, end_walk, 100);
+            try {
+                List<LatLng> Path = PolyUtil.decode(result_walk.routes[0].legs[0].steps[num].polyline.getEncodedPath());
+                step_polyline = mMap.addPolyline(new PolylineOptions().addAll(Path).color(Color.argb(255, 255, 0, 0)));
+            } catch (ArrayIndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
+        }else if(result_mode == 1){//route_displayに自動車経路表示中
+            LatLng start_car = new LatLng(result_car.routes[0].legs[0].steps[num].startLocation.lat, result_car.routes[0].legs[0].steps[num].startLocation.lng);
+            LatLng end_car = new LatLng(result_car.routes[0].legs[0].steps[num].endLocation.lat, result_car.routes[0].legs[0].steps[num].endLocation.lng);
+            moveCamera(start_car, end_car, 100);
+            try {
+                List<LatLng> Path = PolyUtil.decode(result_car.routes[0].legs[0].steps[num].polyline.getEncodedPath());
+                step_polyline = mMap.addPolyline(new PolylineOptions().addAll(Path).color(Color.argb(255, 255, 0, 0)));
+            } catch (ArrayIndexOutOfBoundsException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -370,6 +441,7 @@ public class MapsActivity2 extends FragmentActivity
     }
 
     private void setRouteList(DirectionsResult results){
+        routeList.clear();
         for(int i = 0; i < results.routes[0].legs[0].steps.length; i++) {
             //各ステップの距離を格納
             String step_distance = results.routes[0].legs[0].steps[i].distance.toString();
@@ -379,6 +451,7 @@ public class MapsActivity2 extends FragmentActivity
                     .toString();
 
             routeList.add(step_distance + "先 " + route_detail);
+            Log.d("MapsActivity2", i+"番目:"+step_distance + "先 " + route_detail);
         }
         detailFragment.makeListView();
     }
@@ -387,7 +460,7 @@ public class MapsActivity2 extends FragmentActivity
     private void addPolyline(DirectionsResult results, GoogleMap mMap) {
         try {
             List<LatLng> Path = PolyUtil.decode(results.routes[0].overviewPolyline.getEncodedPath());
-            mMap.addPolyline(new PolylineOptions().addAll(Path));
+            mMap.addPolyline(new PolylineOptions().addAll(Path).color(Color.argb(255, 0, 0, 255)));
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
             Toast toast = Toast.makeText(getApplicationContext(),
@@ -395,8 +468,6 @@ public class MapsActivity2 extends FragmentActivity
             toast.show();
         }
     }
-
-
 
     @Override
     protected void onStart() {
@@ -428,6 +499,8 @@ public class MapsActivity2 extends FragmentActivity
     @Override
     protected void onStop() {
         googleApiClient.disconnect();
+        //result_modeを徒歩に戻す
+        result_mode = 0;
         super.onStop();
     }
 
@@ -482,8 +555,8 @@ public class MapsActivity2 extends FragmentActivity
     public void onLocationChanged(Location location) {
         Log.d("MapsActivity2", "Lat:"+location.getLatitude()
                 +", Lng:"+location.getLongitude());
-        //map, 現在地, 目的地を引数に指定
         present = new LatLng(location.getLatitude(), location.getLongitude());
+        //map, 現在地, 目的地を引数に指定
         showRoute(mMap, present, destination);
     }
 }

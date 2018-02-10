@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -39,12 +40,11 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
     private DetailAnimation detailAnimation;
     private DetailAnimation detailAnimation2;
     private DetailAnimation detailAnimation3;
-    private DetailAnimation detailAnimation4;
 
     int i = 0;
 
     //経路の詳細表示
-    private ListView route_display;
+    public ListView route_display;
 
     @Override
     public void onCreate(Bundle saveInstanceState){
@@ -57,6 +57,14 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
         View view = inflater.inflate(R.layout.detail_fragment, null);
         time_and_distance = view.findViewById(R.id.time_and_distance);
         route_display = view.findViewById(R.id.route_display);
+        route_display.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String pos = i + "番目";
+                Log.d("DetailFragment", pos);
+                MapsActivity2.focusRouteStep(i);
+            }
+        });
 
         return view;
     }
@@ -81,7 +89,7 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
         ViewGroup.MarginLayoutParams f_mlp2 = f_lp2;
         int dy = MapsActivity2.detail_fragment_view.getTop() + (newY - preY);
 
-        Log.d("DetailFragment", "dy:" + dy);
+        //Log.d("DetailFragment", "dy:" + dy);
         //Log.d("DetailFragment", "limitY:" + limitY);
 
         switch (motionEvent.getAction()) {
@@ -117,26 +125,19 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
                     detailAnimation.setAnimation();
                     i = MapsActivity2.maps_view_height - time_and_distance.getHeight();
                     Log.d("DetailFragment", "1");
-                }else if (dy - i > MapsActivity2.maps_view_height/4 && dy - i <= MapsActivity2.maps_view_height/2){
+                }else if (/*dy - i > MapsActivity2.maps_view_height/4 && dy - i <= MapsActivity2.maps_view_height/2*/dy - i > MapsActivity2.maps_view_height/4 && dy - i <= (MapsActivity2.maps_view_height/4)*3){
                     detailAnimation2 = new DetailAnimation(MapsActivity2.detail_fragment_view,
                             y - i,
                             -MapsActivity2.maps_view_height + time_and_distance.getHeight() + MapsActivity2.maps_view_height/2, 500);
                     detailAnimation2.setAnimation();
                     i = MapsActivity2.maps_view_height/2 - time_and_distance.getHeight();
                     Log.d("DetailFragment", "2");
-                }else if(dy - i > MapsActivity2.maps_view_height/2 && dy - i <= (MapsActivity2.maps_view_height/4)*3){
-                    detailAnimation3 = new DetailAnimation(MapsActivity2.detail_fragment_view,
-                            y - i,
-                            -MapsActivity2.maps_view_height + time_and_distance.getHeight() + MapsActivity2.maps_view_height/2, 500);
-                    detailAnimation3.setAnimation();
-                    i = MapsActivity2.maps_view_height/2 - time_and_distance.getHeight();
-                    Log.d("DetailFragment", "3");
                 }else if(dy - i > (MapsActivity2.maps_view_height/4)*3 && dy - i <= limitY){
-                    detailAnimation4 = new DetailAnimation(MapsActivity2.detail_fragment_view,
+                    detailAnimation3 = new DetailAnimation(MapsActivity2.detail_fragment_view,
                             y - i, 0, 500);
-                    detailAnimation4.setAnimation();
+                    detailAnimation3.setAnimation();
                     i = 0;
-                    Log.d("DetailFragment", "4");
+                    Log.d("DetailFragment", "3");
                 }
                 int dyi = dy - i;
                 Log.d("DetailFragment", "dy - i:" + dyi + " dy:" + dy + " i:" + i);
