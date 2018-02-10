@@ -110,6 +110,10 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
                 MapsActivity2.detail_fragment_container.setLayoutParams(f_mlp2);
                 break;
             case MotionEvent.ACTION_DOWN:
+                //DetailFragmentのサイズを戻す
+                ViewGroup.LayoutParams params = MapsActivity2.detail_fragment_view.getLayoutParams();
+                params.height = MapsActivity2.maps_view_height;
+                MapsActivity2.detail_fragment_view.setLayoutParams(params);
                 break;
             case MotionEvent.ACTION_UP:
                 int y = MapsActivity2.detail_fragment_view.getTop() - MapsActivity2.maps_view_height + time_and_distance.getHeight();
@@ -121,20 +125,21 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
                 if(dy - i >= 0 && dy - i <= MapsActivity2.maps_view_height/4){
                     detailAnimation = new DetailAnimation(MapsActivity2.detail_fragment_view,
                             y - i,
-                            -MapsActivity2.maps_view_height + time_and_distance.getHeight(), 500);
+                            -MapsActivity2.maps_view_height + time_and_distance.getHeight(), 500, 1);
                     detailAnimation.setAnimation();
                     i = MapsActivity2.maps_view_height - time_and_distance.getHeight();
                     Log.d("DetailFragment", "1");
                 }else if (/*dy - i > MapsActivity2.maps_view_height/4 && dy - i <= MapsActivity2.maps_view_height/2*/dy - i > MapsActivity2.maps_view_height/4 && dy - i <= (MapsActivity2.maps_view_height/4)*3){
                     detailAnimation2 = new DetailAnimation(MapsActivity2.detail_fragment_view,
                             y - i,
-                            -MapsActivity2.maps_view_height + time_and_distance.getHeight() + MapsActivity2.maps_view_height/2, 500);
+                            -MapsActivity2.maps_view_height + time_and_distance.getHeight() + MapsActivity2.maps_view_height/2,
+                            500, 2);
                     detailAnimation2.setAnimation();
                     i = MapsActivity2.maps_view_height/2 - time_and_distance.getHeight();
                     Log.d("DetailFragment", "2");
                 }else if(dy - i > (MapsActivity2.maps_view_height/4)*3 && dy - i <= limitY){
                     detailAnimation3 = new DetailAnimation(MapsActivity2.detail_fragment_view,
-                            y - i, 0, 500);
+                            y - i, 0, 500, 3);
                     detailAnimation3.setAnimation();
                     i = 0;
                     Log.d("DetailFragment", "3");

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 /**
@@ -17,15 +18,18 @@ public class DetailAnimation implements Animator.AnimatorListener{
     private int preY;
     private int newY;
     private FrameLayout detail_fragment_container;
+    //アニメーションの再生時間
     private int duration;
+    private int animationMode = 0;
 
     //コンストラクタ
-    public DetailAnimation(View view, int preY, int newY, int duration){
+    public DetailAnimation(View view, int preY, int newY, int duration, int animationMode){
         this.view = view;
         this.preY = preY;
         this.newY = newY;
         this.detail_fragment_container = MapsActivity2.detail_fragment_container;
         this.duration = duration;
+        this.animationMode = animationMode;
     }
 
     public void setAnimation(){
@@ -43,7 +47,12 @@ public class DetailAnimation implements Animator.AnimatorListener{
 
     @Override
     public void onAnimationEnd(Animator animator) {
-
+        //DetailFragmentのサイズを半分にし, ListViewが全て見えるようにする
+        if(animationMode == 2) {
+            ViewGroup.LayoutParams params = MapsActivity2.detail_fragment_view.getLayoutParams();
+            params.height = MapsActivity2.maps_view_height / 2;
+            MapsActivity2.detail_fragment_view.setLayoutParams(params);
+        }
     }
 
     @Override

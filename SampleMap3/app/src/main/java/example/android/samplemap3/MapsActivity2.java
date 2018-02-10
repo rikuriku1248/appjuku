@@ -450,7 +450,7 @@ public class MapsActivity2 extends FragmentActivity
                     .replaceAll("<(\"[^\"]*\"|'[^']*'|[^'\">])*>", "")
                     .toString();
 
-            routeList.add(step_distance + "先 " + route_detail);
+            routeList.add("[" + i + "] " + step_distance + "先 " + route_detail);
             Log.d("MapsActivity2", i+"番目:"+step_distance + "先 " + route_detail);
         }
         detailFragment.makeListView();
