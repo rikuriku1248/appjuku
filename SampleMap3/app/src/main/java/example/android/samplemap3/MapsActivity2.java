@@ -4,12 +4,14 @@ import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -76,7 +78,8 @@ public class MapsActivity2 extends FragmentActivity
     private GoogleApiClient googleApiClient;
 
     public static GoogleMap mMap;
-    private final int REQUEST_PERMISSION = 10;
+    //ロケーションアクセスの度合い(0～3)
+    int gpsStatus = 0;
 
     //現在地及び目的地
     private double present_location_latitude;
@@ -124,10 +127,14 @@ public class MapsActivity2 extends FragmentActivity
     //各ステップのポリラインを格納
     private static Polyline step_polyline;
 
+    private boolean showRouteStatus = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map2);
+
+        showRouteStatus = false;
 
         googleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -151,7 +158,6 @@ public class MapsActivity2 extends FragmentActivity
         setLocation();
         setDestinationName();
         makeFragment();
-
 
         Log.d("MapsActivity2", "onCreate");
         map_type_view = findViewById(R.id.fragment_container);
@@ -230,6 +236,11 @@ public class MapsActivity2 extends FragmentActivity
 
         CameraUpdate cUpdata = CameraUpdateFactory.newLatLngZoom(destination, 16);
         mMap.moveCamera(cUpdata);
+        //二回呼ばれるのを防ぐ
+        if(!showRouteStatus) {
+            showRoute(mMap, present, destination);
+            showRouteStatus = true;
+        }
     }
 
     private void showRoute(final GoogleMap map, final LatLng presentLatLng, final LatLng destinationLatLng) {
@@ -239,6 +250,8 @@ public class MapsActivity2 extends FragmentActivity
             Bundle bundle = appInfo.metaData;
 
             DateTime now = new DateTime();
+
+            Log.d("MapsActivity", "debug");
 
             //徒歩経路リクエスト
             result_walk = DirectionsApi.newRequest(getGeoContext(bundle))
@@ -257,7 +270,6 @@ public class MapsActivity2 extends FragmentActivity
                     .departureTime(now)
                     .language("ja")
                     .await();
-
             Log.i("MapsActivity2", "walk:"+String.valueOf(result_walk.routes[0].legs[0].steps.length)+ ", car:"+String.valueOf(result_car.routes[0].legs[0].steps.length));
 
             //デフォルトで徒歩経路表示
@@ -327,12 +339,33 @@ public class MapsActivity2 extends FragmentActivity
             e.printStackTrace();
             Log.d("MapsActivity2", "ApiException");
         } catch (NullPointerException e) {
-            Log.d("MapsActivity2", "Null" + e);
+            Log.d("MapsActivity2", "Null");
             //位置情報が得られなかった場合, 目的地にマーカー設置のみ行う
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(destination_latitude,
                             destination_longitude))
                     .title(destination_name));
+            //位置情報が許可されているか確認
+            CheckLocationStatus();
+        }
+    }
+
+    //ロケーションアクセスの度合いの確認
+    private void CheckLocationStatus(){
+        try {
+            gpsStatus = Settings.Secure.getInt(
+                    getContentResolver(), String.valueOf(Settings.Secure.LOCATION_MODE)
+            );
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        /*
+        Toast.makeText(getApplicationContext(), "GPSstatus:" + gpsStatus,
+                Toast.LENGTH_LONG).show();
+        */
+        if(gpsStatus == Settings.Secure.LOCATION_MODE_OFF){
+            LocationInfoDialog locationInfoDialog = new LocationInfoDialog();
+            locationInfoDialog.show(getFragmentManager(), "LocationInfomation");
         }
     }
 
@@ -557,6 +590,6 @@ public class MapsActivity2 extends FragmentActivity
                 +", Lng:"+location.getLongitude());
         present = new LatLng(location.getLatitude(), location.getLongitude());
         //map, 現在地, 目的地を引数に指定
-        showRoute(mMap, present, destination);
+        //showRoute(mMap, present, destination);
     }
 }
