@@ -590,6 +590,6 @@ public class MapsActivity2 extends FragmentActivity
                 +", Lng:"+location.getLongitude());
         present = new LatLng(location.getLatitude(), location.getLongitude());
         //map, 現在地, 目的地を引数に指定
-        //showRoute(mMap, present, destination);
+        showRoute(mMap, present, destination);
     }
 }
