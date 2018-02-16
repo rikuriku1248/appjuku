@@ -129,6 +129,8 @@ public class MapsActivity2 extends FragmentActivity
 
     private boolean showRouteStatus = false;
 
+    private final int REQUEST_PERMISSION = 10;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -541,13 +543,30 @@ public class MapsActivity2 extends FragmentActivity
     public void onConnected(@Nullable Bundle bundle) {
 
         // ACCESS_FINE_LOCATIONへのパーミッションを確認
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.
+
+        if (Build.VERSION.SDK_INT >= 23 && ActivityCompat.checkSelfPermission(this, android.Manifest.
                 permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+            requestLocationPermission();
         }
 
         // 位置情報の監視を開始
         fusedLocationProviderApi.requestLocationUpdates(googleApiClient, request, this);
+    }
+
+    // 許可を求める
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_PERMISSION);
+        } else {
+            Toast toast = Toast.makeText(this,
+                    "許可がないとアプリが実行できません", Toast.LENGTH_SHORT);
+            toast.show();
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, REQUEST_PERMISSION);
+        }
     }
 
     @Override
