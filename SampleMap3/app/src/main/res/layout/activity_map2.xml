@@ -16,110 +16,21 @@
         tools:context="example.android.samplemap1.MapsActivity"
         map:uiZoomControls="true"/>
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageButton
+        android:id="@+id/mapType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null" />
+    <Button
+        android:id="@+id/walk_button"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="20">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="3"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="horizontal"
-            android:layout_weight="2"
-            android:weightSum="20">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-            <Button
-                android:text="戻る"
-                android:textSize="10dp"
-                android:id="@+id/back_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="5"/>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="8"/>
-
-            <Button
-                android:id="@+id/mapType"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="5"
-                android:text="MapType" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="5"
-            android:orientation="horizontal"
-            android:weightSum="10">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="5"></LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="6"></LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:orientation="horizontal"
-            android:weightSum="7">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/walk_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:text="徒歩" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/car_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:text="車" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
+        android:text="徒歩" />
+    <Button
+        android:id="@+id/car_button"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="車" />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -134,5 +45,4 @@
         android:id="@+id/fragment_container"
         android:orientation="vertical">
     </FrameLayout>
-
 </RelativeLayout>

@@ -7,7 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -131,6 +135,8 @@ public class MapsActivity2 extends FragmentActivity
 
     private final int REQUEST_PERMISSION = 10;
 
+    ImageButton map_type_button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,6 +167,10 @@ public class MapsActivity2 extends FragmentActivity
         setDestinationName();
         makeFragment();
 
+        if (Build.VERSION.SDK_INT >= 23) {
+            checkPermission();
+        }
+
         Log.d("MapsActivity2", "onCreate");
         map_type_view = findViewById(R.id.fragment_container);
         fragment_container = findViewById(R.id.fragment_container);
@@ -169,15 +179,19 @@ public class MapsActivity2 extends FragmentActivity
         detail_fragment_container = findViewById(R.id.detail_fragment_container);;
         detail_fragment_view.setOnTouchListener((View.OnTouchListener) detailFragment);
 
-        Button back_button = (Button) findViewById(R.id.back_button);
-        back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        setMapTypeButton();
 
-        final Button map_type_button = (Button) findViewById(R.id.mapType);
+        mapFragment.getMapAsync(this);
+    }
+
+    private void setMapTypeButton(){
+        map_type_button = (ImageButton) findViewById(R.id.mapType);
+        //map_type_button.setImageResource(R.drawable.sozai_cman_jp_20180216152820);
+        /*
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sozai_cman_jp_20180216152820);
+        bitmap = Bitmap.createScaledBitmap(bitmap, 80, 80, false);
+        map_type_button.setImageBitmap(bitmap);
+        */
         map_type_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -185,8 +199,6 @@ public class MapsActivity2 extends FragmentActivity
                 mapTypeAnimation.setAnimation();
             }
         });
-
-        mapFragment.getMapAsync(this);
     }
 
     //mapTypeFragment及びdetailFragmentを生成
@@ -546,11 +558,23 @@ public class MapsActivity2 extends FragmentActivity
 
         if (Build.VERSION.SDK_INT >= 23 && ActivityCompat.checkSelfPermission(this, android.Manifest.
                 permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestLocationPermission();
+            return;
         }
 
         // 位置情報の監視を開始
         fusedLocationProviderApi.requestLocationUpdates(googleApiClient, request, this);
+    }
+
+    // 位置情報許可の確認
+    public void checkPermission() {
+        // 既に許可している場合
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        }
+        // 拒否していた場合
+        else {
+            requestLocationPermission();
+        }
     }
 
     // 許可を求める
@@ -585,6 +609,15 @@ public class MapsActivity2 extends FragmentActivity
 
         maps_view_width = layout_width;
         maps_view_height = layout_height;
+
+        int map_type_bitmap_size = layout_width/15;
+        //map_type_buttonの設定
+        Bitmap map_type_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sozai_cman_jp_20180216152820);
+        map_type_bitmap = Bitmap.createScaledBitmap(map_type_bitmap, map_type_bitmap_size, map_type_bitmap_size, false);
+        map_type_button.setImageBitmap(map_type_bitmap);
+        ViewGroup.LayoutParams map_type_button_lp = map_type_button.getLayoutParams();
+        ViewGroup.MarginLayoutParams map_type_button_mlp = (ViewGroup.MarginLayoutParams) map_type_button_lp;
+        map_type_button_mlp.setMargins(maps_view_width/37, maps_view_height/12, map_type_button_mlp.rightMargin, map_type_button_mlp.bottomMargin);
 
         //map_typeの初期位置の変更
         RelativeLayout.LayoutParams f_lp = (RelativeLayout.LayoutParams) MapsActivity2.fragment_container.getLayoutParams();
