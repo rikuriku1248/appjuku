@@ -20,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -81,45 +83,48 @@ public class MapsActivity2 extends FragmentActivity
 
     private GoogleApiClient googleApiClient;
 
-    public static GoogleMap mMap;
+    protected static GoogleMap mMap;
     //ロケーションアクセスの度合い(0～3)
-    int gpsStatus = 0;
+    static int gpsStatus = 0;
 
     //現在地及び目的地
     private double present_location_latitude;
     private double present_location_longitude;
-    private double destination_latitude;
-    private double destination_longitude;
+    private static double destination_latitude;
+    private static double destination_longitude;
 
     //現在位置及び目的地
-    private LatLng present;
-    private LatLng destination;
+    private static LatLng present;
+    private static LatLng destination;
 
-    private String destination_name;
+    private static String destination_name;
     //所要時間を格納
-    public static String time;
+    protected static String time;
     //目的地までの距離を格納
-    public static String distance;
+    protected static String distance;
 
-    public static MapTypeFragment mapTypeFragment;
-    public static DetailFragment detailFragment;
+    protected static MapTypeFragment mapTypeFragment;
+    protected static DetailFragment detailFragment;
+    private TransportationTab transportationTab;
     //map_typeを配置するFrameLayout
-    public static FrameLayout fragment_container;
+    protected static FrameLayout fragment_container;
     //detail_fragmentを配置するFrameLayout
-    public static FrameLayout detail_fragment_container;
+    protected static FrameLayout detail_fragment_container;
+    protected static FrameLayout tab_fragment;
     //map_typeへのタッチリスナー登録に使用
-    public static View map_type_view;
+    protected static View map_type_view;
     //detail_fragmentへのタッチリスナー登録に使用
-    public static View detail_fragment_view;
+    protected static View detail_fragment_view;
+    protected static View transportationTab_view;
     //map_typeのアニメーション
-    public static MapTypeAnimation mapTypeAnimation;
+    protected static MapTypeAnimation mapTypeAnimation;
 
     //経路の詳細を入れるリスト
-    public static ArrayList<String> routeList = new ArrayList<>();
+    protected static ArrayList<String> routeList = new ArrayList<>();
 
     //画面の大きさを格納
-    public static int maps_view_width;
-    public static int maps_view_height;
+    protected static int maps_view_width;
+    protected static int maps_view_height;
 
     private FusedLocationProviderApi fusedLocationProviderApi;
     private LocationRequest request;
@@ -136,6 +141,8 @@ public class MapsActivity2 extends FragmentActivity
     private final int REQUEST_PERMISSION = 10;
 
     ImageButton map_type_button;
+
+    ImageButton myLocation_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,7 +173,15 @@ public class MapsActivity2 extends FragmentActivity
         setLocation();
         setDestinationName();
         makeFragment();
-
+        if (Build.VERSION.SDK_INT >= 23) {
+            checkPermission();
+            try{
+                Thread.sleep(1000); //3000ミリ秒Sleepする
+                CheckLocationStatus();
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+        }
         if (Build.VERSION.SDK_INT >= 23) {
             checkPermission();
         }
@@ -176,27 +191,39 @@ public class MapsActivity2 extends FragmentActivity
         fragment_container = findViewById(R.id.fragment_container);
         map_type_view.setOnTouchListener((View.OnTouchListener) mapTypeFragment);
         detail_fragment_view = findViewById(R.id.detail_fragment_container);
-        detail_fragment_container = findViewById(R.id.detail_fragment_container);;
+        detail_fragment_container = findViewById(R.id.detail_fragment_container);
         detail_fragment_view.setOnTouchListener((View.OnTouchListener) detailFragment);
+        tab_fragment = findViewById(R.id.tab_fragment);
+        transportationTab_view = findViewById(R.id.tab_fragment);
 
         setMapTypeButton();
+        setMyLocationButton();
 
         mapFragment.getMapAsync(this);
     }
 
     private void setMapTypeButton(){
-        map_type_button = (ImageButton) findViewById(R.id.mapType);
-        //map_type_button.setImageResource(R.drawable.sozai_cman_jp_20180216152820);
-        /*
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sozai_cman_jp_20180216152820);
-        bitmap = Bitmap.createScaledBitmap(bitmap, 80, 80, false);
-        map_type_button.setImageBitmap(bitmap);
-        */
+        map_type_button = findViewById(R.id.mapType);
         map_type_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mapTypeAnimation = new MapTypeAnimation(map_type_view, -maps_view_width, (maps_view_width/3)*2, 1000);
                 mapTypeAnimation.setAnimation();
+            }
+        });
+    }
+
+    private void setMyLocationButton(){
+        myLocation_button = findViewById(R.id.myLocation);
+        myLocation_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try{
+                    CameraUpdate cUpdata = CameraUpdateFactory.newLatLngZoom(present, 16);
+                    mMap.animateCamera(cUpdata, 1000, null);
+                }catch (NullPointerException e){
+                    Toast.makeText(getApplicationContext(), "現在地を取得できません", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -215,6 +242,13 @@ public class MapsActivity2 extends FragmentActivity
         detailTransaction.replace(R.id.detail_fragment_container, detailFragment);
         detailTransaction.show(detailFragment);
         detailTransaction.commit();
+
+        transportationTab = new TransportationTab();
+        final android.app.FragmentTransaction TransportTransaction = getFragmentManager().beginTransaction();
+        TransportTransaction.replace(R.id.tab_fragment, transportationTab);
+        TransportTransaction.show(transportationTab);
+        TransportTransaction.commit();
+
     }
 
     //目的地をセット
@@ -246,7 +280,7 @@ public class MapsActivity2 extends FragmentActivity
 
             return;
         }
-        mMap.setMyLocationEnabled(true);
+        //mMap.setMyLocationEnabled(true);
 
         CameraUpdate cUpdata = CameraUpdateFactory.newLatLngZoom(destination, 16);
         mMap.moveCamera(cUpdata);
@@ -296,44 +330,7 @@ public class MapsActivity2 extends FragmentActivity
                 step_polyline.remove();
             }
 
-            moveCamera(presentLatLng, destinationLatLng, 100);
-
-            //徒歩経路表示ボタン
-            Button walk_button = (Button) findViewById(R.id.walk_button);
-            walk_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mMap.clear();
-                    addMarkers(result_walk, map);
-                    addPolyline(result_walk, map);
-                    detailFragment.setTime_and_Distance(time + ", " + distance);
-                    setRouteList(result_walk);
-                    result_mode = 0;
-                    moveCamera(presentLatLng, destinationLatLng, 100);
-                    if(step_polyline != null) {
-                        step_polyline.remove();
-                    }
-                }
-            });
-
-            //自動車経路表示ボタン
-            Button car_button = (Button) findViewById(R.id.car_button);
-            car_button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mMap.clear();
-                    addMarkers(result_car, map);
-                    addPolyline(result_car, map);
-                    detailFragment.setTime_and_Distance(time + ", " + distance);
-                    setRouteList(result_car);
-                    result_mode = 1;
-                    moveCamera(presentLatLng, destinationLatLng, 100);
-                    if(step_polyline != null) {
-                        step_polyline.remove();
-                    }
-                }
-            });
-
+            moveCamera(presentLatLng, destinationLatLng, 200);
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -361,6 +358,45 @@ public class MapsActivity2 extends FragmentActivity
                     .title(destination_name));
             //位置情報が許可されているか確認
             CheckLocationStatus();
+        }
+    }
+
+    public static void walk_or_car(int mode){
+        //徒歩経路表示ボタン
+        try {
+            if (mode == 0) {
+                mMap.clear();
+                addMarkers(result_walk, mMap);
+                addPolyline(result_walk, mMap);
+                detailFragment.setTime_and_Distance(time + ", " + distance);
+                setRouteList(result_walk);
+                result_mode = 0;
+                moveCamera(present, destination, 100);
+                if (step_polyline != null) {
+                    step_polyline.remove();
+                }
+            } else if (mode == 1) {
+                //自動車経路表示ボタン
+                mMap.clear();
+                addMarkers(result_car, mMap);
+                addPolyline(result_car, mMap);
+                detailFragment.setTime_and_Distance(time + ", " + distance);
+                setRouteList(result_car);
+                result_mode = 1;
+                moveCamera(present, destination, 100);
+                if (step_polyline != null) {
+                    step_polyline.remove();
+                }
+            }
+        }catch (NullPointerException e) {
+            Log.d("MapsActivity2", "Null");
+            //位置情報が得られなかった場合, 目的地にマーカー設置のみ行う
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(destination_latitude,
+                            destination_longitude))
+                    .title(destination_name));
+            //位置情報が許可されているか確認
+            //CheckLocationStatus();
         }
     }
 
@@ -406,19 +442,19 @@ public class MapsActivity2 extends FragmentActivity
         //mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(pre_des, 100));
         //presentLatLng, destinationLatLngが収まる位置に1秒かけて移動
         if(pre_des != null) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(pre_des, i), 1000, null);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(pre_des, maps_view_width, maps_view_height, i), 1000, null);
         }
     }
 
     //クリックされた経路ステップにカメラを移動
-    public static void focusRouteStep(int num){
+    protected static void focusRouteStep(int num){
         if(step_polyline != null) {
             step_polyline.remove();
         }
         if(result_mode == 0) {//route_displayに徒歩経路表示中
             LatLng start_walk = new LatLng(result_walk.routes[0].legs[0].steps[num].startLocation.lat, result_walk.routes[0].legs[0].steps[num].startLocation.lng);
             LatLng end_walk = new LatLng(result_walk.routes[0].legs[0].steps[num].endLocation.lat, result_walk.routes[0].legs[0].steps[num].endLocation.lng);
-            moveCamera(start_walk, end_walk, 100);
+            moveCamera(start_walk, end_walk, 200);
             try {
                 List<LatLng> Path = PolyUtil.decode(result_walk.routes[0].legs[0].steps[num].polyline.getEncodedPath());
                 step_polyline = mMap.addPolyline(new PolylineOptions().addAll(Path).color(Color.argb(255, 255, 0, 0)));
@@ -428,7 +464,7 @@ public class MapsActivity2 extends FragmentActivity
         }else if(result_mode == 1){//route_displayに自動車経路表示中
             LatLng start_car = new LatLng(result_car.routes[0].legs[0].steps[num].startLocation.lat, result_car.routes[0].legs[0].steps[num].startLocation.lng);
             LatLng end_car = new LatLng(result_car.routes[0].legs[0].steps[num].endLocation.lat, result_car.routes[0].legs[0].steps[num].endLocation.lng);
-            moveCamera(start_car, end_car, 100);
+            moveCamera(start_car, end_car, 200);
             try {
                 List<LatLng> Path = PolyUtil.decode(result_car.routes[0].legs[0].steps[num].polyline.getEncodedPath());
                 step_polyline = mMap.addPolyline(new PolylineOptions().addAll(Path).color(Color.argb(255, 255, 0, 0)));
@@ -446,7 +482,7 @@ public class MapsActivity2 extends FragmentActivity
     }
 
     //マーカーの設置
-    private void addMarkers(DirectionsResult results, GoogleMap mMap) {
+    private static void addMarkers(DirectionsResult results, GoogleMap mMap) {
         try {
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(results.routes[0].legs[0]
@@ -467,7 +503,7 @@ public class MapsActivity2 extends FragmentActivity
     }
 
     //所要時間の取得
-    private String getTime(DirectionsResult results) {
+    private static String getTime(DirectionsResult results) {
         int hour = (int) (results.routes[0].legs[0].duration.inSeconds / 3600);
         int minutes = (int) ((results.routes[0].legs[0].duration.inSeconds % (60 * 60)) / 60);
 
@@ -482,12 +518,12 @@ public class MapsActivity2 extends FragmentActivity
     }
 
     //目的地までの距離取得
-    private String getDistance(DirectionsResult results) {
+    private static String getDistance(DirectionsResult results) {
         distance = " 距離 :" + results.routes[0].legs[0].distance;
         return " 距離 :" + results.routes[0].legs[0].distance;
     }
 
-    private void setRouteList(DirectionsResult results){
+    private static void setRouteList(DirectionsResult results){
         routeList.clear();
         for(int i = 0; i < results.routes[0].legs[0].steps.length; i++) {
             //各ステップの距離を格納
@@ -504,15 +540,17 @@ public class MapsActivity2 extends FragmentActivity
     }
 
     //地図上に経路の表示
-    private void addPolyline(DirectionsResult results, GoogleMap mMap) {
+    private static void addPolyline(DirectionsResult results, GoogleMap mMap) {
         try {
             List<LatLng> Path = PolyUtil.decode(results.routes[0].overviewPolyline.getEncodedPath());
             mMap.addPolyline(new PolylineOptions().addAll(Path).color(Color.argb(255, 0, 0, 255)));
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
-            Toast toast = Toast.makeText(getApplicationContext(),
+            /*
+            Toast toast = Toast.makeText(this,
                     "ルートがありません。", Toast.LENGTH_SHORT);
             toast.show();
+            */
         }
     }
 
@@ -566,7 +604,7 @@ public class MapsActivity2 extends FragmentActivity
     }
 
     // 位置情報許可の確認
-    public void checkPermission() {
+    protected void checkPermission() {
         // 既に許可している場合
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -610,27 +648,47 @@ public class MapsActivity2 extends FragmentActivity
         maps_view_width = layout_width;
         maps_view_height = layout_height;
 
+        LinearLayout line1 = findViewById(R.id.line1);
+        ViewGroup.LayoutParams line1_lp = line1.getLayoutParams();
+        //line1.setGravity();
+
         int map_type_bitmap_size = layout_width/15;
         //map_type_buttonの設定
-        Bitmap map_type_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sozai_cman_jp_20180216152820);
+        Bitmap map_type_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.map_type_button);
         map_type_bitmap = Bitmap.createScaledBitmap(map_type_bitmap, map_type_bitmap_size, map_type_bitmap_size, false);
         map_type_button.setImageBitmap(map_type_bitmap);
         ViewGroup.LayoutParams map_type_button_lp = map_type_button.getLayoutParams();
         ViewGroup.MarginLayoutParams map_type_button_mlp = (ViewGroup.MarginLayoutParams) map_type_button_lp;
         map_type_button_mlp.setMargins(maps_view_width/37, maps_view_height/12, map_type_button_mlp.rightMargin, map_type_button_mlp.bottomMargin);
 
+        int my_location_bitmap_size = layout_width/15;
+        //my_location_buttonの設定
+        Bitmap my_location_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.my_location_button);
+        my_location_bitmap = Bitmap.createScaledBitmap(my_location_bitmap, my_location_bitmap_size, my_location_bitmap_size, false);
+        myLocation_button.setImageBitmap(my_location_bitmap);
+        ViewGroup.LayoutParams my_location_button_lp = myLocation_button.getLayoutParams();
+        ViewGroup.MarginLayoutParams my_location_button_mlp = (ViewGroup.MarginLayoutParams) my_location_button_lp;
+        my_location_button_mlp.setMargins(my_location_button_mlp.leftMargin, maps_view_height/12, maps_view_width/37, my_location_button_mlp.bottomMargin);
+
         //map_typeの初期位置の変更
         RelativeLayout.LayoutParams f_lp = (RelativeLayout.LayoutParams) MapsActivity2.fragment_container.getLayoutParams();
         ViewGroup.MarginLayoutParams f_mlp = f_lp;
-        f_mlp.setMargins(-maps_view_width, f_mlp.topMargin, maps_view_width, f_mlp.bottomMargin);
+        f_mlp.setMargins(-maps_view_width, maps_view_height/15, maps_view_width, f_mlp.bottomMargin);
         MapsActivity2.fragment_container.setLayoutParams(f_mlp);
+
+        detailFragment.setTextViewParam();
 
         //detail_fragmentの初期位置変更
         RelativeLayout.LayoutParams f_lp2 = (RelativeLayout.LayoutParams) MapsActivity2.detail_fragment_container.getLayoutParams();
         ViewGroup.MarginLayoutParams f_mlp2 = f_lp2;
-        f_mlp2.setMargins(f_mlp2.leftMargin, maps_view_height - detailFragment.time_and_distance.getHeight(),
-                f_mlp2.rightMargin, -maps_view_height + detailFragment.time_and_distance.getHeight());
+        f_mlp2.setMargins(f_mlp2.leftMargin, maps_view_height - maps_view_height/10,
+                f_mlp2.rightMargin, -maps_view_height + maps_view_height/10);
         MapsActivity2.detail_fragment_container.setLayoutParams(f_mlp2);
+
+        //transportationのサイズ変更
+        ViewGroup.LayoutParams params = transportationTab_view.getLayoutParams();
+        params.height = maps_view_height/15;
+        transportationTab_view.setLayoutParams(params);
 
         Log.d("MapsActivity2", "width=" + layout_width +
                 ", height=" + layout_height);

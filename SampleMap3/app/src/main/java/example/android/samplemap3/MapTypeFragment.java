@@ -8,10 +8,15 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.GoogleMap;
+
+import java.util.ArrayList;
 
 /**
  * Created by riku on 2018/02/01.
@@ -26,6 +31,8 @@ public class MapTypeFragment extends Fragment implements View.OnTouchListener{
     private MapTypeAnimation mapTypeAnimation2;
     private MapTypeAnimation mapTypeAnimation3;
 
+    protected ListView itemList;
+    ArrayList<String> items = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle saveInstanceState){
@@ -37,36 +44,23 @@ public class MapTypeFragment extends Fragment implements View.OnTouchListener{
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.map_type, null);
 
-        Button mapType_normal_button = (Button)view.findViewById(R.id.mapType_normal);
-        mapType_normal_button.setOnClickListener(new View.OnClickListener(){
+        itemList = view.findViewById(R.id.itemList);
+        makeListView();
+        itemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View view){
-                MapsActivity2.mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            }
-        });
-
-        Button mapType_satellite_button = (Button)view.findViewById(R.id.mapType_satellite);
-        mapType_satellite_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                MapsActivity2.mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            }
-        });
-
-        Button mapType_terrain_button = (Button)view.findViewById(R.id.mapType_terrain);
-        mapType_terrain_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                MapsActivity2.mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-            }
-        });
-
-        Button back_button = (Button)view.findViewById(R.id.back_button);
-        back_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                MapsActivity2.mapTypeAnimation = new MapTypeAnimation(MapsActivity2.map_type_view,  (MapsActivity2.maps_view_width/3)*2,-MapsActivity2.maps_view_width, 1000);
-                MapsActivity2.mapTypeAnimation.setAnimation();
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String pos = i + "番目";
+                Log.d("DetailFragment", pos);
+                if(i == 0){
+                    MapsActivity2.mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }else if(i == 1){
+                    MapsActivity2.mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                }else if(i == 2){
+                    MapsActivity2.mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                }else if(i == 3){
+                    MapsActivity2.mapTypeAnimation = new MapTypeAnimation(MapsActivity2.map_type_view,  (MapsActivity2.maps_view_width/3)*2,-MapsActivity2.maps_view_width, 1000);
+                    MapsActivity2.mapTypeAnimation.setAnimation();
+                }
             }
         });
 
@@ -76,7 +70,7 @@ public class MapTypeFragment extends Fragment implements View.OnTouchListener{
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.setBackgroundColor(Color.parseColor("#eeee0000"));
+        view.setBackgroundColor(Color.parseColor("#eeafafaf"));
         RelativeLayout.LayoutParams f_lp = (RelativeLayout.LayoutParams) MapsActivity2.fragment_container.getLayoutParams();
 
     }
@@ -143,5 +137,17 @@ public class MapTypeFragment extends Fragment implements View.OnTouchListener{
         // タッチした位置の更新
         preX = newX;
         return true;
+    }
+
+    protected void makeListView(){
+
+        items.add("ノーマル");
+        items.add("航空写真");
+        items.add("地形");
+        items.add("閉じる");
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_expandable_list_item_1, items);
+
+        itemList.setAdapter(arrayAdapter);
     }
 }

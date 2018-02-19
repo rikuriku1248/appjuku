@@ -21,16 +21,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@null" />
-    <Button
-        android:id="@+id/walk_button"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="徒歩" />
-    <Button
-        android:id="@+id/car_button"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="車" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/line1">
+
+        <ImageButton
+            android:id="@+id/myLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:layout_gravity="right"/>
+
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -41,8 +47,13 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         android:id="@+id/fragment_container"
         android:orientation="vertical">
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tab_fragment">
     </FrameLayout>
 </RelativeLayout>

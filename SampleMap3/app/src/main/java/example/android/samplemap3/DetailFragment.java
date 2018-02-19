@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,7 +33,7 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
     //タッチの開始のY座標を格納
     private int preY;
     //所要時間及び目的地までの距離を表示
-    public TextView time_and_distance;
+    protected TextView time_and_distance;
     //フラグメントのY座標の上限値を格納
     private int limitY;
 
@@ -44,7 +45,7 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
     int i = 0;
 
     //経路の詳細表示
-    public ListView route_display;
+    protected ListView route_display;
 
     @Override
     public void onCreate(Bundle saveInstanceState){
@@ -56,6 +57,7 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.detail_fragment, null);
         time_and_distance = view.findViewById(R.id.time_and_distance);
+        //time_and_distance.setHeight(MapsActivity2.maps_view_height/10);
         route_display = view.findViewById(R.id.route_display);
         route_display.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -97,11 +99,16 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
             case MotionEvent.ACTION_MOVE:
                 //f_mlp2.setMargins(f_mlp2.leftMargin, dy, f_mlp2.rightMargin, f_mlp2.bottomMargin);
 
+                //DetailFragmentのサイズを戻す
+                ViewGroup.LayoutParams params = MapsActivity2.detail_fragment_view.getLayoutParams();
+                params.height = MapsActivity2.maps_view_height - MapsActivity2.maps_view_height/15;
+                MapsActivity2.detail_fragment_view.setLayoutParams(params);
+
                 //フラグメントの位置上限設定
-                if(dy - i >= 0 && dy - i <= limitY) {
+                if(dy - i >= MapsActivity2.maps_view_height/15 && dy - i <= limitY) {
                     f_mlp2.setMargins(f_mlp2.leftMargin, dy, f_mlp2.rightMargin, f_mlp2.bottomMargin);
-                }else if(dy - i < 0){
-                    f_mlp2.setMargins(f_mlp2.leftMargin, i, f_mlp2.rightMargin, f_mlp2.bottomMargin);
+                }else if(dy - i < MapsActivity2.maps_view_height/15){
+                    f_mlp2.setMargins(f_mlp2.leftMargin, i + MapsActivity2.maps_view_height/15, f_mlp2.rightMargin, f_mlp2.bottomMargin);
                 }else if(dy - i > limitY){
                     f_mlp2.setMargins(f_mlp2.leftMargin, i + MapsActivity2.maps_view_height - time_and_distance.getHeight(), f_mlp2.rightMargin, f_mlp2.bottomMargin);
                 }
@@ -111,9 +118,9 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
                 break;
             case MotionEvent.ACTION_DOWN:
                 //DetailFragmentのサイズを戻す
-                ViewGroup.LayoutParams params = MapsActivity2.detail_fragment_view.getLayoutParams();
-                params.height = MapsActivity2.maps_view_height;
-                MapsActivity2.detail_fragment_view.setLayoutParams(params);
+                ViewGroup.LayoutParams params2 = MapsActivity2.detail_fragment_view.getLayoutParams();
+                params2.height = MapsActivity2.maps_view_height - MapsActivity2.maps_view_height/15;
+                MapsActivity2.detail_fragment_view.setLayoutParams(params2);
                 break;
             case MotionEvent.ACTION_UP:
                 int y = MapsActivity2.detail_fragment_view.getTop() - MapsActivity2.maps_view_height + time_and_distance.getHeight();
@@ -122,12 +129,12 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
                 MapsActivity2.detail_fragment_container.setLayoutParams(f_mlp2);
                 //dy = MapsActivity2.detail_fragment_view.getTop() + (newY - preY);
                 //Log.d("DetailFragment", "dy2:" + dy);
-                if(dy - i >= 0 && dy - i <= MapsActivity2.maps_view_height/4){
+                if(dy - i >= MapsActivity2.maps_view_height/15 && dy - i <= MapsActivity2.maps_view_height/4){
                     detailAnimation = new DetailAnimation(MapsActivity2.detail_fragment_view,
                             y - i,
-                            -MapsActivity2.maps_view_height + time_and_distance.getHeight(), 500, 1);
+                            -MapsActivity2.maps_view_height + time_and_distance.getHeight() + MapsActivity2.maps_view_height/15, 500, 1);
                     detailAnimation.setAnimation();
-                    i = MapsActivity2.maps_view_height - time_and_distance.getHeight();
+                    i = MapsActivity2.maps_view_height - time_and_distance.getHeight() - MapsActivity2.maps_view_height/15;
                     Log.d("DetailFragment", "1");
                 }else if (/*dy - i > MapsActivity2.maps_view_height/4 && dy - i <= MapsActivity2.maps_view_height/2*/dy - i > MapsActivity2.maps_view_height/4 && dy - i <= (MapsActivity2.maps_view_height/4)*3){
                     detailAnimation2 = new DetailAnimation(MapsActivity2.detail_fragment_view,
@@ -155,15 +162,20 @@ public class DetailFragment extends Fragment implements View.OnTouchListener{
         return true;
     }
 
-    public void setTime_and_Distance(String text){
+    protected void setTime_and_Distance(String text){
         time_and_distance.setText(text);
     }
 
-    public void makeListView(){
+    protected void setTextViewParam(){
+        time_and_distance.setGravity(Gravity.LEFT|Gravity.CENTER);
+        time_and_distance.setHeight(MapsActivity2.maps_view_height/10);
 
-        Log.d("DetailFragment", MapsActivity2.routeList.get(0));
+    }
+
+    protected void makeListView(){
+
+        //Log.d("DetailFragment", MapsActivity2.routeList.get(0));
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_expandable_list_item_1, MapsActivity2.routeList);
-        //ListViewのid取得
 
         route_display.setAdapter(arrayAdapter);
     }

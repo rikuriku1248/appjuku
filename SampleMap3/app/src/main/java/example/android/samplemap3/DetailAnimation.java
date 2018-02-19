@@ -2,6 +2,7 @@ package example.android.samplemap3;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ public class DetailAnimation implements Animator.AnimatorListener{
     private int animationMode = 0;
 
     //コンストラクタ
-    public DetailAnimation(View view, int preY, int newY, int duration, int animationMode){
+    protected DetailAnimation(View view, int preY, int newY, int duration, int animationMode){
         this.view = view;
         this.preY = preY;
         this.newY = newY;
@@ -32,7 +33,7 @@ public class DetailAnimation implements Animator.AnimatorListener{
         this.animationMode = animationMode;
     }
 
-    public void setAnimation(){
+    protected void setAnimation(){
         ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, "translationY", preY, newY);
         objectAnimator.addListener(this);
         objectAnimator.setDuration(duration);
@@ -57,7 +58,7 @@ public class DetailAnimation implements Animator.AnimatorListener{
 
     @Override
     public void onAnimationCancel(Animator animator) {
-
+        Log.d("DetailAnimation", "onAnimationCancel");
     }
 
     @Override

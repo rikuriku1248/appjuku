@@ -22,7 +22,7 @@ public class MapTypeAnimation implements Animator.AnimatorListener{
     private int duration;
 
     //コンストラクタ
-    public MapTypeAnimation(View view, int preX, int newX, int duration){
+    protected MapTypeAnimation(View view, int preX, int newX, int duration){
         this.view = view;
         this.preX = preX;
         this.newX = newX;
@@ -30,7 +30,7 @@ public class MapTypeAnimation implements Animator.AnimatorListener{
         this.duration = duration;
     }
 
-    public void setAnimation(){
+    protected void setAnimation(){
         ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(view, "translationX", preX, newX);
         objectAnimator.addListener(this);
         objectAnimator.setDuration(duration);
