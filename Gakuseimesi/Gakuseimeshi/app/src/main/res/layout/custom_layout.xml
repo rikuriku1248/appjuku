@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    card_view:cardBackgroundColor="#FFFFFF"
+    card_view:cardCornerRadius="10dp"
+    card_view:cardUseCompatPadding="true">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/shopImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginRight="3dp"
+            android:src="@drawable/no_image"
+            android:contentDescription="@string/shop_image"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:weightSum="1">
+
+            <!-- add ellipsize ~ single line　これによって、おさまらない文字列を…に置換 -->
+            <TextView
+                android:id="@+id/shopName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start|center_vertical"
+                android:textSize="19sp"
+                android:ellipsize="end"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:text="hoge"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp">
+
+                <TextView
+                    android:id="@+id/shopHour"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|center_vertical"
+                    android:textSize="14sp"
+                    android:text="hoge"/>
+
+                <ImageView
+                    android:id="@+id/favorite"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:background="#888"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

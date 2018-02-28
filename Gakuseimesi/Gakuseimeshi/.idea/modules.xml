@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Gakuseimeshi.iml" filepath="$PROJECT_DIR$/Gakuseimeshi.iml" />
+      <module fileurl="file://C:\Users\riku\AndroidStudioProjects\Gakuseimesi\Gakuseimeshi\Gakuseimeshi.iml" filepath="C:\Users\riku\AndroidStudioProjects\Gakuseimesi\Gakuseimeshi\Gakuseimeshi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+    </modules>
+  </component>
+</project>
