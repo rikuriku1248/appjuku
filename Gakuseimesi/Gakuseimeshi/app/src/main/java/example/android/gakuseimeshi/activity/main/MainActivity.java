@@ -19,7 +19,9 @@ import android.widget.LinearLayout;
 import com.astuetz.PagerSlidingTabStrip;
 
 import example.android.gakuseimeshi.R;
+import example.android.gakuseimeshi.activity.main.expandLayout.FavoritePageFragment;
 import example.android.gakuseimeshi.activity.main.expandLayout.FragmentPageOne;
+import example.android.gakuseimeshi.activity.main.expandLayout.FavoritePageFragment;
 
 public class MainActivity extends AppCompatActivity {
     private TabPagerAdapter pagerAdapter;
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                     f = FragmentPageOne.newInstance();
                     break;
                 case 1:
-                    f = FragmentPageOne.newInstance();
+                    f = FavoritePageFragment.newInstance();
                     break;
             }
             return f;

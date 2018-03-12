@@ -61,7 +61,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:orientation="vertical"
                 card_view:cardBackgroundColor="#FFFFFF"
                 card_view:cardCornerRadius="10dp"
                 card_view:cardUseCompatPadding="true">

@@ -13,8 +13,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="example.android.samplemap1.MapsActivity"
-        map:uiZoomControls="true"/>
+        tools:context="example.android.samplemap1.MapsActivity" />
 
     <ImageButton
         android:id="@+id/mapType"
@@ -34,6 +33,30 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:layout_gravity="right"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:id="@+id/zoom_button_layout"
+            android:orientation="vertical"
+            android:background="#ffffff">
+
+            <ImageButton
+                android:id="@+id/zoom_in_button"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:background="@null"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:id="@+id/zoom_out_button"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:background="@null"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

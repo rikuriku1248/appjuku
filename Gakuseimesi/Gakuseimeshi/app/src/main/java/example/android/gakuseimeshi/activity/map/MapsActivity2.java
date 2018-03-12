@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.text.Layout;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.Gravity;
@@ -77,8 +78,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import example.android.gakuseimeshi.R;
+import example.android.gakuseimeshi.database.basicData.LocationInformation;
 import example.android.gakuseimeshi.database.basicData.MapData;
+import example.android.gakuseimeshi.database.basicData.MapSearch;
 import example.android.gakuseimeshi.database.dao.ShopLocationDao;
+import example.android.gakuseimeshi.database.dao.ShopMapSearchDao;
 import example.android.gakuseimeshi.database.dao.ShopMapViewDao;
 import example.android.gakuseimeshi.gurunavi.ImageAsyncTask;
 
@@ -155,11 +159,13 @@ public class MapsActivity2 extends FragmentActivity
 
     ImageButton map_type_button;
 
-    ImageButton myLocation_button;
+    protected ImageButton myLocation_button;
+    protected ImageButton zoom_in_button;
+    protected ImageButton zoom_out_button;
 
-    private String imageURL = "{}";
-    private LruCache<String, Bitmap> mMemoryCache;
-    ImageView shopImage;
+    private static String imageURL = "{}";
+    private static LruCache<String, Bitmap> mMemoryCache;
+    static ImageView shopImage;
 
     protected static View info_window;
     protected static TextView shopName;
@@ -175,10 +181,27 @@ public class MapsActivity2 extends FragmentActivity
 
     private static List<LatLng> Path;
 
+    private static int id;
+
+    private ArrayList<Integer> favorite_id_list;
+    private static ArrayList<LatLng> favorite_latlng_list;
+
+    ArrayList<MapSearch> favoriteSearchResult;
+
+    //private static ShopMapViewDao shopMapViewDao;
+
+    private static Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map2);
+
+        context = getApplicationContext();
+
+        favorite_latlng_list = new ArrayList<>();
+
+        init();
 
         showRouteStatus = false;
 
@@ -187,33 +210,14 @@ public class MapsActivity2 extends FragmentActivity
         start_marker_icon = BitmapFactory.decodeResource(getResources(), R.drawable.start_marker_icon);
 
         info_window = getLayoutInflater().inflate(R.layout.info_window, null);
-        imageURL = MapsActivity.imageURL;
-        mMemoryCache = MapsActivity.mMemoryCache;
+        //imageURL = MapsActivity.imageURL;
+        //mMemoryCache = MapsActivity.mMemoryCache;
         shopImage = info_window.findViewById(R.id.shopImage);
         shopName = info_window.findViewById(R.id.shopName);
         addressText = info_window.findViewById(R.id.addressText);
         address = MapsActivity.address;
 
-        if(!imageURL.equals("{}")) {
-            Bitmap bitmap = mMemoryCache.get(imageURL);
-
-            if (bitmap != null) {
-                shopImage.setImageBitmap(bitmap);
-            } else {
-                shopImage.setTag(imageURL);
-                // 画像の設定 "{}"ならno_imageをセットし，URLなら画像を取得してセット
-                if (imageURL.equals("{}")) {
-                    shopImage.setImageResource(R.drawable.no_image);
-                } else {
-                    Uri uri = Uri.parse(imageURL);
-                    Uri.Builder builder = uri.buildUpon();
-                    ImageAsyncTask task = new ImageAsyncTask(shopImage, mMemoryCache);
-                    task.execute(builder);
-                }
-            }
-        }else{
-            shopImage.setImageResource(R.drawable.no_image);
-        }
+        setImage();
 
         googleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -266,6 +270,79 @@ public class MapsActivity2 extends FragmentActivity
         mapFragment.getMapAsync(this);
     }
 
+    private static void setImage(){
+        if(!imageURL.equals("{}")) {
+            Bitmap bitmap = mMemoryCache.get(imageURL);
+
+            if (bitmap != null) {
+                shopImage.setImageBitmap(bitmap);
+            } else {
+                shopImage.setTag(imageURL);
+                // 画像の設定 "{}"ならno_imageをセットし，URLなら画像を取得してセット
+                if (imageURL.equals("{}")) {
+                    shopImage.setImageResource(R.drawable.no_image);
+                } else {
+                    Uri uri = Uri.parse(imageURL);
+                    Uri.Builder builder = uri.buildUpon();
+                    ImageAsyncTask task = new ImageAsyncTask(shopImage, mMemoryCache);
+                    task.execute(builder);
+                }
+            }
+        }else{
+            shopImage.setImageResource(R.drawable.no_image);
+        }
+    }
+
+    private void init(){
+        id = MapsActivity.id;
+        //Log.d("MapsActivity","id" + String.valueOf(id));
+
+        ShopMapSearchDao shopMapSearchDao = new ShopMapSearchDao(getApplicationContext());
+        shopMapSearchDao.readDB();
+        favoriteSearchResult = (ArrayList<MapSearch>)shopMapSearchDao.searchFavorite(1);
+        ShopMapViewDao shopMapViewDao = new ShopMapViewDao(context);
+        shopMapViewDao.readDB();
+        List<MapData> mapdata = shopMapViewDao.searchId(id);
+
+        if(id != -1){
+            ShopLocationDao shopLocationDao = new ShopLocationDao(getApplicationContext());
+            shopLocationDao.readDB();
+            for(int i = 0; i < favoriteSearchResult.size(); i++){
+                LatLng latLng = new LatLng(shopLocationDao.searchId(favoriteSearchResult.get(i).getId()).get(0).getLatitude(),
+                        shopLocationDao.searchId(favoriteSearchResult.get(i).getId()).get(0).getLongitude());
+                favorite_latlng_list.add(latLng);
+            }
+            shopLocationDao.closeDB();
+            shopMapSearchDao.closeDB();
+            //Log.d("aaaa", "favorite = " + favorite_infomation_list.get(0));
+            shopMapViewDao.closeDB();
+
+            imageURL = mapdata.get(0).getImage();
+            address = mapdata.get(0).getAddress();
+
+            final int memClass = ((ActivityManager)getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
+            final int cacheSize = 1024 * 1024 * memClass / 8;
+            mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+                @Override
+                protected int sizeOf(String key, Bitmap bitmap) {
+                    return bitmap.getByteCount();
+                }
+            };
+        }
+    }
+
+    private static void addFavoriteMarker(GoogleMap mMap){
+
+        Log.d("aaaa", "favorite = " + favorite_latlng_list.get(0).latitude);
+        for(int i = 1; i < favorite_latlng_list.size(); i++) {
+            if(i != id) {
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(favorite_latlng_list.get(i).latitude,
+                                favorite_latlng_list.get(i).longitude))).setTag(String.valueOf(i));
+            }
+
+        }
+    }
 
     private void setMapTypeButton(){
         map_type_button = findViewById(R.id.mapType);
@@ -289,6 +366,26 @@ public class MapsActivity2 extends FragmentActivity
                 }catch (NullPointerException e){
                     Toast.makeText(getApplicationContext(), "現在地を取得できません", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+    }
+
+    private void setZoomButton(final GoogleMap mMap){
+        zoom_in_button = findViewById(R.id.zoom_in_button);
+        zoom_in_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CameraUpdate zoom_in = CameraUpdateFactory.zoomIn();
+                mMap.animateCamera(zoom_in);
+            }
+        });
+
+        zoom_out_button = findViewById(R.id.zoom_out_button);
+        zoom_out_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CameraUpdate zoom_out = CameraUpdateFactory.zoomOut();
+                mMap.animateCamera(zoom_out);
             }
         });
     }
@@ -353,9 +450,11 @@ public class MapsActivity2 extends FragmentActivity
 
         CameraUpdate cUpdata = CameraUpdateFactory.newLatLngZoom(destination, 16);
         mMap.moveCamera(cUpdata);
+        setZoomButton(mMap);
         //二回呼ばれるのを防ぐ
         if(!showRouteStatus) {
             showRoute(mMap, present, destination);
+            addFavoriteMarker(mMap);
             showRouteStatus = true;
         }
     }
@@ -391,12 +490,13 @@ public class MapsActivity2 extends FragmentActivity
 
             //デフォルトで徒歩経路表示
             mMap.clear();
+            addFavoriteMarker(mMap);
             addMarkers(result_walk, map);
             addPolyline(result_walk, map);
             detailFragment.setTime_and_Distance(time + ", " + distance);
             setRouteList(result_walk);
 
-            moveCamera(presentLatLng, destinationLatLng, 200);
+            moveCamera(presentLatLng, destinationLatLng, 230);
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -432,21 +532,23 @@ public class MapsActivity2 extends FragmentActivity
         try {
             if (mode == 0) {
                 mMap.clear();
+                addFavoriteMarker(mMap);
                 addMarkers(result_walk, mMap);
                 reset_polyline(mode);
                 detailFragment.setTime_and_Distance(time + ", " + distance);
                 setRouteList(result_walk);
                 result_mode = 0;
-                moveCamera(present, destination, 200);
+                moveCamera(present, destination, 230);
             } else if (mode == 1) {
                 //自動車経路表示ボタン
                 mMap.clear();
+                addFavoriteMarker(mMap);
                 addMarkers(result_car, mMap);
                 reset_polyline(mode);
                 detailFragment.setTime_and_Distance(time + ", " + distance);
                 setRouteList(result_car);
                 result_mode = 1;
-                moveCamera(present, destination, 200);
+                moveCamera(present, destination, 230);
             }
         }catch (NullPointerException e) {
             Log.d("MapsActivity2", "Null");
@@ -604,7 +706,7 @@ public class MapsActivity2 extends FragmentActivity
                             .legs[0].startLocation.lng))
                             .icon(BitmapDescriptorFactory.fromBitmap(start_marker_icon)));
             //.title(results.routes[0].legs[0].startAddress));
-            start_marker.setTag("start_marker");
+            start_marker.setTag("-1");
             end_marker = mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(results.routes[0]
                             .legs[0].endLocation.lat, results.routes[0]
@@ -612,7 +714,7 @@ public class MapsActivity2 extends FragmentActivity
                     //.title(results.routes[0].legs[0].startAddress)
                     .title(destination_name)
                     .snippet(getTime(results) + getDistance(results)));
-            end_marker.setTag("end_marker");
+            end_marker.setTag(String.valueOf(id));
 
 
             mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -624,17 +726,34 @@ public class MapsActivity2 extends FragmentActivity
                 @Override
                 public View getInfoContents(Marker marker) {
                     String id = marker.getId();
-                    String tag = (String) marker.getTag();
+                    int tag = Integer.parseInt((String) marker.getTag());
 
                     shopName.setText(destination_name + "\n");
                     addressText.setText(address);
-                    Log.d("MarkerID", "tag=" + tag);
+                    Log.d("abc", "tag=" + tag);
 
-                    if(tag.equals("end_marker")){
-                        return info_window;
+                    if(tag == -1){
+                        return  null;
                     }
 
-                    return null;
+                    setImage();
+                    return info_window;
+                }
+            });
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    int tag = Integer.parseInt((String) marker.getTag());
+                    if(tag >= 0) {
+                        set_favorite_info_window(tag);
+                    }
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return false;
                 }
             });
 
@@ -644,6 +763,43 @@ public class MapsActivity2 extends FragmentActivity
             e.printStackTrace();
         }
 
+    }
+
+    private static void set_favorite_info_window(int tag){
+
+        ShopMapViewDao shopMapViewDao = new ShopMapViewDao(context);
+        shopMapViewDao.readDB();
+        List<MapData> mapdata2 = shopMapViewDao.searchId(tag);
+
+        shopMapViewDao.closeDB();
+        if(mapdata2.size() != 0) {
+            imageURL = mapdata2.get(0).getImage();
+            address = mapdata2.get(0).getAddress();
+            //address = "aaaaa";
+            //Log.d("abc", "address="+ mapdata2.get(0).getAddress());
+            final int memClass = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
+            final int cacheSize = 1024 * 1024 * memClass / 8;
+            mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+                @Override
+                protected int sizeOf(String key, Bitmap bitmap) {
+                    return bitmap.getByteCount();
+                }
+            };
+        }
+
+        ShopLocationDao shopLocationDao = new ShopLocationDao(context);
+        shopLocationDao.readDB();
+        List<LocationInformation> locationInformations = shopLocationDao.searchId(tag);
+
+        shopLocationDao.closeDB();
+
+        if(locationInformations.size() != 0) {
+            Log.d("abc", "Name="+ locationInformations.get(0).getName());
+            destination_name = locationInformations.get(0).getName();
+            //shopName.setText(locationInformations.get(0).getName() + "\n");
+            //addressText.setText("a");
+        }
+        setImage();
     }
 
     //所要時間の取得
@@ -810,6 +966,27 @@ public class MapsActivity2 extends FragmentActivity
         ViewGroup.LayoutParams my_location_button_lp = myLocation_button.getLayoutParams();
         ViewGroup.MarginLayoutParams my_location_button_mlp = (ViewGroup.MarginLayoutParams) my_location_button_lp;
         my_location_button_mlp.setMargins(my_location_button_mlp.leftMargin, maps_view_height/12, maps_view_width/37, my_location_button_mlp.bottomMargin);
+
+        //zoom_layoutの設定
+        LinearLayout zoom_button_layout = findViewById(R.id.zoom_button_layout);
+        zoom_button_layout.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(layout_width/12, layout_height/8);
+        lp.gravity = Gravity.RIGHT;
+        zoom_button_layout.setLayoutParams(lp);
+
+        ViewGroup.LayoutParams zoom_button_lp = zoom_button_layout.getLayoutParams();
+        ViewGroup.MarginLayoutParams zoom_button_mlp = (ViewGroup.MarginLayoutParams) zoom_button_lp;
+        zoom_button_mlp.setMargins(zoom_button_mlp.leftMargin, maps_view_height/2, maps_view_width/37, zoom_button_mlp.bottomMargin);
+
+        //zoom_in_buttonの設定
+        Bitmap zoom_in_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.zoom_in_icon);
+        zoom_in_bitmap = Bitmap.createScaledBitmap(zoom_in_bitmap, my_location_bitmap_size, my_location_bitmap_size, false);
+        zoom_in_button.setImageBitmap(zoom_in_bitmap);
+
+        //zoom_out_buttonの設定
+        Bitmap zoom_out_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.zoom_out_icon);
+        zoom_out_bitmap = Bitmap.createScaledBitmap(zoom_out_bitmap, my_location_bitmap_size, my_location_bitmap_size, false);
+        zoom_out_button.setImageBitmap(zoom_out_bitmap);
 
         //start_marker_iconの設定
         start_marker_icon = BitmapFactory.decodeResource(getResources(), R.drawable.start_marker_icon);

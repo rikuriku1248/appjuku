@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F6F3F3">
 
     <LinearLayout
         android:orientation="vertical"
@@ -43,9 +45,7 @@
                 android:gravity="left|center_vertical"
                 android:layout_weight="17"
                 android:layout_margin="5dp"
-                android:background="@drawable/ic_tab_fav">
-
-            </Button>
+                android:background="@drawable/ic_tab_fav"/>
 
         </LinearLayout>
 
@@ -68,43 +68,43 @@
             android:layout_height="30dp"
             android:layout_marginStart="10dp"
             android:gravity="left|bottom"
-            android:text="基本情報"
-            android:textSize="16sp"/>
+            android:text="店舗情報"
+            android:textSize="20sp"/>
 
-        <TextView
+        <com.beardedhen.androidbootstrap.AwesomeTextView
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:layout_marginStart="10dp"
             android:gravity="left|bottom"
-            android:text="電話番号"
-            android:textSize="12dp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textSize="15dp"
+            app:bootstrapBrand="regular"
+            app:fontAwesomeIcon="fa_android"
+            app:bootstrapText="{fa-phone} 電話番号"/>
 
         <TextView
             android:id="@+id/tel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:gravity="left"
+            android:layout_marginStart="30dp"
             android:textSize="12dp"
             android:textColor="#6666FF"
             android:clickable="true"/>
 
-        <TextView
+        <com.beardedhen.androidbootstrap.AwesomeTextView
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:layout_marginStart="10dp"
             android:gravity="left|bottom"
-            android:text="住所"
-            android:textSize="12dp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textSize="15dp"
+            app:bootstrapText="{fa-home} 住所"
+            app:bootstrapBrand="regular"
+            app:fontAwesomeIcon="fa_android"/>
 
         <TextView
             android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:gravity="left"
+            android:layout_marginStart="30dp"
             android:textSize="12dp"/>
 
 
@@ -112,42 +112,41 @@
             android:id="@+id/access"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:gravity="left"
+            android:layout_marginStart="30dp"
             android:textSize="12dp"/>
 
-        <TextView
+        <com.beardedhen.androidbootstrap.AwesomeTextView
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:layout_marginStart="10dp"
             android:gravity="left|bottom"
-            android:text="営業時間"
-            android:textSize="12dp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textSize="15dp"
+            app:bootstrapText="{fa-check} 営業時間"
+            app:bootstrapBrand="regular"
+            app:fontAwesomeIcon="fa_android"/>
 
         <TextView
             android:id="@+id/opentime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:gravity="left"
+            android:layout_marginStart="30dp"
             android:textSize="12dp"/>
 
-        <TextView
+        <com.beardedhen.androidbootstrap.AwesomeTextView
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:layout_marginStart="10dp"
             android:gravity="left|bottom"
-            android:text="定休日"
-            android:textSize="12dp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textSize="15dp"
+            app:bootstrapText="{fa-bed} 定休日"
+            app:bootstrapBrand="regular"
+            app:fontAwesomeIcon="fa_android"/>
 
         <TextView
             android:id="@+id/holiday"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_marginStart="10dp"
-            android:gravity="left|top"
+            android:layout_marginStart="30dp"
             android:textSize="12dp"/>
     </LinearLayout>
 </ScrollView>

@@ -61,9 +61,7 @@ public class FragmentPageOne extends Fragment {
     private String areaContent = "";
     private String genreContent = "";
     private final static int DURATION = 200;
-    //2018/1/22 追加 ナカヤマ
     private ShopMapSearchDao shopMapSearchDao;
-    //2018/1/24 追加 ナカヤマ
     private SharedPreferences sharedPref;
     private UploadAsyncTask uploadAsyncTask;
 

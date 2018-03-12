@@ -54,7 +54,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback {
 
     protected static String destination_name;
     protected static String address;
-    private int id;
+    protected static int id;
 
     protected static String imageURL = "{}";
     protected static LruCache<String, Bitmap> mMemoryCache;
