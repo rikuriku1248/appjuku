@@ -339,7 +339,9 @@ public class MapsActivity2 extends FragmentActivity
             if (favoriteInfos.get(i).id != id) {
                 mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(favoriteInfos.get(i).latLng.latitude,
-                                favoriteInfos.get(i).latLng.longitude))).setTag(String.valueOf(favoriteInfos.get(i).id));
+                                favoriteInfos.get(i).latLng.longitude))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)))
+                        .setTag(String.valueOf(favoriteInfos.get(i).id));
             }
         }
     }

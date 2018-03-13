@@ -40,7 +40,7 @@
             android:layout_gravity="right"
             android:id="@+id/zoom_button_layout"
             android:orientation="vertical"
-            android:background="#ffffff">
+            android:background="@drawable/zoom_button_style">
 
             <ImageButton
                 android:id="@+id/zoom_in_button"
