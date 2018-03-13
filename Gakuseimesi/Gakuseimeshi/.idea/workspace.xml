@@ -5,7 +5,7 @@
       <filter>
         <option name="logLevel" value="verbose" />
         <option name="logMessagePattern" value="" />
-        <option name="logTagPattern" value="abc" />
+        <option name="logTagPattern" value="favoriteName" />
         <option name="name" value="Unnamed-0" />
         <option name="packageNamePattern" value="" />
         <option name="pid" value="" />
@@ -57,25 +57,35 @@
       <file leaf-file-name="MapsActivity2.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/MapsActivity2.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="112">
-              <caret line="735" column="37" lean-forward="true" selection-start-line="735" selection-start-column="37" selection-end-line="735" selection-end-column="37" />
+            <state relative-caret-position="385">
+              <caret line="338" column="39" lean-forward="false" selection-start-line="338" selection-start-column="39" selection-end-line="338" selection-end-column="39" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#11984#11985#0" expanded="true" />
-                <element signature="e#12052#12053#0" expanded="true" />
-                <element signature="e#12712#12999#0" expanded="true" />
-                <element signature="e#12998#12999#0" expanded="true" />
-                <element signature="e#13153#13615#0" expanded="true" />
-                <element signature="e#13614#13615#0" expanded="true" />
-                <element signature="e#13781#14014#0" expanded="true" />
-                <element signature="e#14013#14014#0" expanded="true" />
-                <element signature="e#14123#14359#0" expanded="true" />
-                <element signature="e#14358#14359#0" expanded="true" />
-                <element signature="e#29837#30407#0" expanded="true" />
-                <element signature="e#30406#30407#0" expanded="true" />
-                <element signature="e#31401#31402#0" expanded="true" />
-                <element signature="e#31469#31470#0" expanded="true" />
+                <element signature="e#12157#12158#0" expanded="true" />
+                <element signature="e#12225#12226#0" expanded="true" />
+                <element signature="e#12927#13214#0" expanded="true" />
+                <element signature="e#13213#13214#0" expanded="true" />
+                <element signature="e#13368#13830#0" expanded="true" />
+                <element signature="e#13829#13830#0" expanded="true" />
+                <element signature="e#13996#14229#0" expanded="true" />
+                <element signature="e#14228#14229#0" expanded="true" />
+                <element signature="e#14338#14574#0" expanded="true" />
+                <element signature="e#14573#14574#0" expanded="true" />
+                <element signature="e#30052#30622#0" expanded="true" />
+                <element signature="e#30621#30622#0" expanded="true" />
+                <element signature="e#31616#31617#0" expanded="true" />
+                <element signature="e#31684#31685#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FavoriteInfo.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/FavoriteInfo.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="238">
+              <caret line="14" column="5" lean-forward="false" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="5" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -83,8 +93,8 @@
       <file leaf-file-name="AndroidManifest.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="35" column="29" lean-forward="false" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
+            <state relative-caret-position="246">
+              <caret line="33" column="14" lean-forward="true" selection-start-line="33" selection-start-column="14" selection-end-line="33" selection-end-column="14" />
               <folding />
             </state>
           </provider>
@@ -96,7 +106,7 @@
       <file leaf-file-name="ImageAsyncTask.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/ImageAsyncTask.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-601">
+            <state relative-caret-position="-153">
               <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
               <folding />
             </state>
@@ -106,8 +116,18 @@
       <file leaf-file-name="SearchKitFoodArea.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/SearchKitFoodArea.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2482">
+            <state relative-caret-position="221">
               <caret line="97" column="31" lean-forward="false" selection-start-line="97" selection-start-column="31" selection-end-line="97" selection-end-column="31" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UploadAsyncTask.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/UploadAsyncTask.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -133,43 +153,6 @@
           </provider>
           <provider editor-type-id="android-designer2">
             <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TransportationTab.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/TransportationTab.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="385">
-              <caret line="53" column="37" lean-forward="false" selection-start-line="53" selection-start-column="37" selection-end-line="53" selection-end-column="37" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LocationInformation.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/database/basicData/LocationInformation.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="13" lean-forward="false" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-              <folding>
-                <element signature="e#263#264#0" expanded="false" />
-                <element signature="e#288#289#0" expanded="false" />
-                <element signature="e#320#321#0" expanded="false" />
-                <element signature="e#348#349#0" expanded="false" />
-                <element signature="e#378#379#0" expanded="false" />
-                <element signature="e#405#406#0" expanded="false" />
-                <element signature="e#444#445#0" expanded="false" />
-                <element signature="e#476#477#0" expanded="false" />
-                <element signature="e#510#511#0" expanded="false" />
-                <element signature="e#541#542#0" expanded="false" />
-                <element signature="e#588#589#0" expanded="false" />
-                <element signature="e#628#629#0" expanded="false" />
-                <element signature="e#663#664#0" expanded="false" />
-                <element signature="e#695#696#0" expanded="false" />
-                <element signature="e#744#745#0" expanded="false" />
-                <element signature="e#786#787#0" expanded="false" />
-              </folding>
-            </state>
           </provider>
         </entry>
       </file>
@@ -201,6 +184,7 @@
       <find>address</find>
       <find>shopName</find>
       <find>slee</find>
+      <find>addF</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -2633,6 +2617,7 @@
         <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_map2.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/MapsActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/SelectTransportation.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/FavoriteInfo.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/MapsActivity2.java" />
         <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/SearchKitFoodArea.java" />
@@ -2641,7 +2626,7 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-1374" />
+    <option name="x" value="-8" />
     <option name="y" value="-8" />
     <option name="width" value="1382" />
     <option name="height" value="784" />
@@ -2818,6 +2803,20 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Gakuseimeshi" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="app" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="manifests" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidManifestsGroupNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="ProjectPane" />
@@ -2917,7 +2916,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520885376951" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520947859710" />
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -2965,7 +2964,7 @@
       </Profilers>
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520885376951" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520947859711" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -3148,7 +3147,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520885376952" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520947859711" />
       </method>
     </configuration>
     <list size="1">
@@ -3187,7 +3186,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1374" y="-8" width="1382" height="784" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -3302,20 +3301,20 @@
           <caret line="314" column="87" lean-forward="true" selection-start-line="314" selection-start-column="87" selection-end-line="314" selection-end-column="87" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11984#11985#0" expanded="true" />
-            <element signature="e#12052#12053#0" expanded="true" />
-            <element signature="e#12712#12999#0" expanded="true" />
-            <element signature="e#12998#12999#0" expanded="true" />
-            <element signature="e#13153#13615#0" expanded="true" />
-            <element signature="e#13614#13615#0" expanded="true" />
-            <element signature="e#13781#14014#0" expanded="true" />
-            <element signature="e#14013#14014#0" expanded="true" />
-            <element signature="e#14123#14359#0" expanded="true" />
-            <element signature="e#14358#14359#0" expanded="true" />
-            <element signature="e#29837#30407#0" expanded="true" />
-            <element signature="e#30406#30407#0" expanded="true" />
-            <element signature="e#31401#31402#0" expanded="true" />
-            <element signature="e#31469#31470#0" expanded="true" />
+            <element signature="e#12157#12158#0" expanded="true" />
+            <element signature="e#12225#12226#0" expanded="true" />
+            <element signature="e#12927#13214#0" expanded="true" />
+            <element signature="e#13213#13214#0" expanded="true" />
+            <element signature="e#13368#13830#0" expanded="true" />
+            <element signature="e#13829#13830#0" expanded="true" />
+            <element signature="e#13996#14229#0" expanded="true" />
+            <element signature="e#14228#14229#0" expanded="true" />
+            <element signature="e#14338#14574#0" expanded="true" />
+            <element signature="e#14573#14574#0" expanded="true" />
+            <element signature="e#30052#30622#0" expanded="true" />
+            <element signature="e#30621#30622#0" expanded="true" />
+            <element signature="e#31616#31617#0" expanded="true" />
+            <element signature="e#31684#31685#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3342,20 +3341,20 @@
           <caret line="837" column="52" lean-forward="false" selection-start-line="837" selection-start-column="52" selection-end-line="837" selection-end-column="52" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11984#11985#0" expanded="true" />
-            <element signature="e#12052#12053#0" expanded="true" />
-            <element signature="e#12712#12999#0" expanded="true" />
-            <element signature="e#12998#12999#0" expanded="true" />
-            <element signature="e#13153#13615#0" expanded="true" />
-            <element signature="e#13614#13615#0" expanded="true" />
-            <element signature="e#13781#14014#0" expanded="true" />
-            <element signature="e#14013#14014#0" expanded="true" />
-            <element signature="e#14123#14359#0" expanded="true" />
-            <element signature="e#14358#14359#0" expanded="true" />
-            <element signature="e#29837#30407#0" expanded="true" />
-            <element signature="e#30406#30407#0" expanded="true" />
-            <element signature="e#31401#31402#0" expanded="true" />
-            <element signature="e#31469#31470#0" expanded="true" />
+            <element signature="e#12157#12158#0" expanded="true" />
+            <element signature="e#12225#12226#0" expanded="true" />
+            <element signature="e#12927#13214#0" expanded="true" />
+            <element signature="e#13213#13214#0" expanded="true" />
+            <element signature="e#13368#13830#0" expanded="true" />
+            <element signature="e#13829#13830#0" expanded="true" />
+            <element signature="e#13996#14229#0" expanded="true" />
+            <element signature="e#14228#14229#0" expanded="true" />
+            <element signature="e#14338#14574#0" expanded="true" />
+            <element signature="e#14573#14574#0" expanded="true" />
+            <element signature="e#30052#30622#0" expanded="true" />
+            <element signature="e#30621#30622#0" expanded="true" />
+            <element signature="e#31616#31617#0" expanded="true" />
+            <element signature="e#31684#31685#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -3377,16 +3376,6 @@
       </provider>
       <provider editor-type-id="android-designer2">
         <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/UploadAsyncTask.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_map2.xml">
@@ -3520,34 +3509,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/UploadAsyncTask.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="11" column="13" lean-forward="false" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/FavoriteInfo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="5" lean-forward="false" selection-start-line="14" selection-start-column="5" selection-end-line="14" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/activity/map/MapsActivity2.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="735" column="37" lean-forward="true" selection-start-line="735" selection-start-column="37" selection-end-line="735" selection-end-column="37" />
+        <state relative-caret-position="385">
+          <caret line="338" column="39" lean-forward="false" selection-start-line="338" selection-start-column="39" selection-end-line="338" selection-end-column="39" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#11984#11985#0" expanded="true" />
-            <element signature="e#12052#12053#0" expanded="true" />
-            <element signature="e#12712#12999#0" expanded="true" />
-            <element signature="e#12998#12999#0" expanded="true" />
-            <element signature="e#13153#13615#0" expanded="true" />
-            <element signature="e#13614#13615#0" expanded="true" />
-            <element signature="e#13781#14014#0" expanded="true" />
-            <element signature="e#14013#14014#0" expanded="true" />
-            <element signature="e#14123#14359#0" expanded="true" />
-            <element signature="e#14358#14359#0" expanded="true" />
-            <element signature="e#29837#30407#0" expanded="true" />
-            <element signature="e#30406#30407#0" expanded="true" />
-            <element signature="e#31401#31402#0" expanded="true" />
-            <element signature="e#31469#31470#0" expanded="true" />
+            <element signature="e#12157#12158#0" expanded="true" />
+            <element signature="e#12225#12226#0" expanded="true" />
+            <element signature="e#12927#13214#0" expanded="true" />
+            <element signature="e#13213#13214#0" expanded="true" />
+            <element signature="e#13368#13830#0" expanded="true" />
+            <element signature="e#13829#13830#0" expanded="true" />
+            <element signature="e#13996#14229#0" expanded="true" />
+            <element signature="e#14228#14229#0" expanded="true" />
+            <element signature="e#14338#14574#0" expanded="true" />
+            <element signature="e#14573#14574#0" expanded="true" />
+            <element signature="e#30052#30622#0" expanded="true" />
+            <element signature="e#30621#30622#0" expanded="true" />
+            <element signature="e#31616#31617#0" expanded="true" />
+            <element signature="e#31684#31685#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="35" column="29" lean-forward="false" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
+        <state relative-caret-position="246">
+          <caret line="33" column="14" lean-forward="true" selection-start-line="33" selection-start-column="14" selection-end-line="33" selection-end-column="14" />
           <folding />
         </state>
       </provider>
@@ -3557,7 +3562,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/ImageAsyncTask.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-601">
+        <state relative-caret-position="-153">
           <caret line="21" column="13" lean-forward="false" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
           <folding />
         </state>
@@ -3565,7 +3570,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/example/android/gakuseimeshi/gurunavi/SearchKitFoodArea.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2482">
+        <state relative-caret-position="221">
           <caret line="97" column="31" lean-forward="false" selection-start-line="97" selection-start-column="31" selection-end-line="97" selection-end-column="31" />
           <folding />
         </state>

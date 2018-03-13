@@ -183,10 +183,9 @@ public class MapsActivity2 extends FragmentActivity
 
     private static int id;
 
-    private ArrayList<Integer> favorite_id_list;
-    private static ArrayList<LatLng> favorite_latlng_list;
+    private static ArrayList<FavoriteInfo> favoriteInfos;
 
-    ArrayList<MapSearch> favoriteSearchResult;
+    static ArrayList<MapSearch> favoriteSearchResult;
 
     //private static ShopMapViewDao shopMapViewDao;
 
@@ -199,7 +198,7 @@ public class MapsActivity2 extends FragmentActivity
 
         context = getApplicationContext();
 
-        favorite_latlng_list = new ArrayList<>();
+        favoriteInfos = new ArrayList<>();
 
         init();
 
@@ -308,9 +307,12 @@ public class MapsActivity2 extends FragmentActivity
             ShopLocationDao shopLocationDao = new ShopLocationDao(getApplicationContext());
             shopLocationDao.readDB();
             for(int i = 0; i < favoriteSearchResult.size(); i++){
-                LatLng latLng = new LatLng(shopLocationDao.searchId(favoriteSearchResult.get(i).getId()).get(0).getLatitude(),
+                int favorite_id = favoriteSearchResult.get(i).getId();
+                LatLng favorite_latLng = new LatLng(shopLocationDao.searchId(favoriteSearchResult.get(i).getId()).get(0).getLatitude(),
                         shopLocationDao.searchId(favoriteSearchResult.get(i).getId()).get(0).getLongitude());
-                favorite_latlng_list.add(latLng);
+                FavoriteInfo favoriteInfo = new FavoriteInfo(favorite_id, favorite_latLng);
+                favoriteInfos.add(favoriteInfo);
+                //favorite_latlng_list.add(latLng);
             }
             shopLocationDao.closeDB();
             shopMapSearchDao.closeDB();
@@ -332,15 +334,13 @@ public class MapsActivity2 extends FragmentActivity
     }
 
     private static void addFavoriteMarker(GoogleMap mMap){
-
-        Log.d("aaaa", "favorite = " + favorite_latlng_list.get(0).latitude);
-        for(int i = 1; i < favorite_latlng_list.size(); i++) {
-            if(i != id) {
+        for(int i = 0; i < favoriteInfos.size(); i++) {
+            //Log.d("aaaa", "favorite = " + favorite_latlng_list.get(0).latitude);
+            if (favoriteInfos.get(i).id != id) {
                 mMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(favorite_latlng_list.get(i).latitude,
-                                favorite_latlng_list.get(i).longitude))).setTag(String.valueOf(i));
+                        .position(new LatLng(favoriteInfos.get(i).latLng.latitude,
+                                favoriteInfos.get(i).latLng.longitude))).setTag(String.valueOf(favoriteInfos.get(i).id));
             }
-
         }
     }
 
